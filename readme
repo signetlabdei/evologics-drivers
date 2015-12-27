@@ -1,0 +1,16 @@
+The team behind EvoLogics standalone drivers is using the git software to manage the source code.
+
+Command-Line Access
+
+git clone gituwsignet@git.dei.unipd.it:evologics-drivers.git
+
+You may need to provide your SSH key. The synchronization of your SSH key can take a couple of minutes. You can learn more about SSH key authentication.
+
+First Commit
+
+To make a first commit in the repository, perform the following steps:
+
+git init
+git add .
+git commit -m "initial import"
+git remote add origin gituwsignet@git.dei.unipd.it:evologics-drivers.git
