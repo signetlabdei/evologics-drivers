@@ -129,12 +129,12 @@ int main(int argc, char* argv[]) {
 		if (tx_flag) {
 			//retreive sending time and data to send
 			std::string message2parse = readMessage(dir_label);
-			cout << "message2parse = " << message2parse << endl;
-			cout << "getMessage(message2parse)" << getMessage(message2parse) <<endl;
-			cout << "parseWait(message2parse) = " << parseWait(message2parse) << endl;
+			cout << getEpoch() << " message2parse = " << message2parse << endl;
+			cout << getEpoch() << " getMessage(message2parse)" << getMessage(message2parse) <<endl;
+			cout << getEpoch() << " parseWait(message2parse) = " << parseWait(message2parse) << endl;
 			usleep (parseWait(message2parse)); //sleep(); if sec.
 			transmit(pmDriver,RECEIVER, getMessage(message2parse),NOACK);
-			std::cout << "Sent " << ID << " to " << RECEIVER << " " << getMessage(message2parse) << endl;
+			std::cout << getEpoch() << " Sent " << ID << " to " << RECEIVER << " " << getMessage(message2parse) << endl;
 		}
 		else {
 			//check if there is something received and write it in the log
@@ -142,7 +142,7 @@ int main(int argc, char* argv[]) {
 				std::string rx_msg = pmDriver->getRxPayload();
 				rx_counter ++;
 				printToFile(rx_msg,rx_counter,dir_label);
-				cout << "Rx Message " << ID << " " << rx_msg << endl;
+				cout << getEpoch() << " Rx Message " << ID << " " << rx_msg << endl;
 				pmDriver -> resetModemStatus();
 			}
 			modemStatus_old = pmDriver->getStatus();

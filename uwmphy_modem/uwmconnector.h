@@ -54,7 +54,7 @@
 
 #define _MODEM_OK 1 /**< Variable to test the right opening of the modem's connection. */
 #define _MAX_MSG_LENGTH (0x1000) /**< Variable defining the maximum length of the messages exchanged between host and modem */
-#define _MAX_QUEUE_LENGTH 20 /**< Maximum length of queue containing the messages from modem */
+#define _MAX_QUEUE_LENGTH 200 /**< Maximum length of queue containing the messages from modem */
 
 using namespace std;
 

@@ -71,6 +71,7 @@ FileExistNum = dir(FileName);
 for ind = 1: length(FileExistNum)
     CurrentFileName = FileExistNum(ind).name;
     TempName = CurrentFileName;
+     disp([CurrentFileName])
     delete(strcat(outFolder,'/',CurrentFileName))
     
     loc = strfind(TempName, '.');
@@ -78,7 +79,7 @@ for ind = 1: length(FileExistNum)
     CurrentDataFileName = [DataFileName, x];
     FileDataExistNum = dir(CurrentDataFileName);
     if length(FileDataExistNum) > 0
-        delete(strcat(outFolder,'/',CurrentDataFileName))
+        delete(strcat(CurrentDataFileName))
     end
 end
 

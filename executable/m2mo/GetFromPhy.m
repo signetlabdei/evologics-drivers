@@ -13,7 +13,8 @@ if 0
             FileName = strcat(outFolder, FileName);
             if exist(FileName, 'file') == 2
                 load(FileName);
-                disp(['Received: ', TxPacket.Type, ' for Msg: ', num2str(TxPacket.MsgID), ' from Node: ', num2str(TxPacket.Source)]);
+                [status,curr_epoch] = system('date +%s');
+                disp([curr_epoch(1:end-1), ' Received: ', TxPacket.Type, ' for Msg: ', num2str(TxPacket.MsgID), ' from Node: ', num2str(TxPacket.Source)]);
                 RxPacket = [RxPacket, TxPacket];
                 delete(FileName);
             end
@@ -32,7 +33,6 @@ else
         x = CurrentFileName(loc+2:end);
         
         CurrentDataFileName = [DataFileName, x];
-        
         delete(strcat(outFolder,'/',CurrentFileName)); 
 
         FileDataExistNum = dir(CurrentDataFileName);
@@ -40,7 +40,6 @@ else
             fid = fopen(CurrentDataFileName, 'r');
             S = fscanf(fid,'%s');
             fclose(fid);
-            
             delete(CurrentDataFileName);
             
             Data = dec2bin(hex2dec(S), 32);
@@ -71,6 +70,8 @@ else
             CurrentRxPacket.SlotID = SlotID;
             
             RxPacket = [RxPacket, CurrentRxPacket];
+            [status,curr_epoch] = system('date +%s');
+            disp([curr_epoch(1:end-1), ' RxPacket']);
             
         end
     end

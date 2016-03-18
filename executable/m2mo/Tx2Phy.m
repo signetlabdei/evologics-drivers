@@ -1,8 +1,8 @@
 function Tx2Phy(TxPacket)
 
 global NodeNum outFolder
-
-disp(['Transmitting ', TxPacket.Type, ' for Msg: ', num2str(TxPacket.MsgID), ' to node(s) ', num2str(TxPacket.DestVec),' at time : ', num2str(TxPacket.TxTime)]);
+[status,curr_epoch] = system('date +%s');
+disp([curr_epoch(1:end-1), ' Transmitting ', TxPacket.Type, ' for Msg: ', num2str(TxPacket.MsgID), ' to node(s) ', num2str(TxPacket.DestVec),' at time : ', num2str(TxPacket.TxTime)]);
 
 if 0
     %-------------------
