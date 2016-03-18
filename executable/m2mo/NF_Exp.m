@@ -647,7 +647,7 @@ while (etime(clock, StartTime) < ExpTime)
         BackoffTimer(1) = -1;
     end;
     
-    if strcmp(State{1},'IDLE')||strcmp(State{1},'BACKOFF')
+    if 1 %strcmp(State{1},'IDLE')||strcmp(State{1},'BACKOFF')
         TimeDiff = etime(clock, StartTime);
         NextSlotID = floor(TimeDiff / SlotRes) + 2;
         %Check for new message

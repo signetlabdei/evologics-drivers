@@ -1,0 +1,11 @@
+To run the example script, please type:
+./runM2Mo.sh ID Tp HH MM IP PT
+with 
+	Tp  -  topology (1-4)
+	HH  -  hour
+	MM  -  minutes
+	IP  -  ip of the modem
+	PT  -  port of the modem
+
+example
+./runM2Mo.sh 1 1 09 50 192.168.100.1 9201
