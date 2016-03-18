@@ -3,38 +3,56 @@
 #include <math.h>
 #include <time.h>
 #include <sys/time.h>
+#include <sys/stat.h>
 
-static char const* check_tx_log_ = "MacTx.txt";
-static char const* tx_log_ = "FromMac2Phy.txt";
 
-static char const* check_rx_log_ = "PhyRx";
+static char const* check_tx_log_ = "/MacTx.txt";
+static char const* tx_log_ = "/FromMac2Phy.txt";
+
+static char const* check_rx_log_ = "/PhyRx";
 //static char const* rx_log_ = "'PhyRx*.txt";
-static char const* rx_log_ = "FromPhy2Mac";
+static char const* rx_log_ = "/FromPhy2Mac";
 static char const* extension_ = ".txt";
 
 static char const token_separator_ = ',';
 //DONE: check if the transmitting file exists
-bool checkTxLog() {
+bool checkTxLog(char * folder) {
 	ifstream input_file_;
-	input_file_.open(check_tx_log_);
+	string file_name = string(folder) + string(check_tx_log_);
+	input_file_.open(file_name.c_str());
 	bool transmitting_flag = input_file_.is_open();
 	if (!transmitting_flag) { input_file_.close(); }
 	return transmitting_flag;
 }
 
 //DONE: retreive sending time and data to send
-std::string readMessage() {
+std::string readMessage(char * folder) {
 	std::string message_line = "";
-	if (!checkTxLog())
+	if (!checkTxLog(folder))
 		return message_line;
 	ifstream input_file_;
-	input_file_.open(tx_log_);
+	string file_name = string(folder) + string(tx_log_);
+	input_file_.open(file_name.c_str());
 	if ( !input_file_.is_open() ) 
 		return message_line;
 	std::getline(input_file_, message_line);
-	remove(check_tx_log_);
-	remove(tx_log_);
+	remove(file_name.c_str());
+	file_name = string(folder) + string(check_tx_log_);
+	remove(file_name.c_str());
 	return message_line;
+}
+
+//DONE: print in the received log file and create the flag file for the reception
+void printToFile(std::string rx_msg, int counter, char * folder) { 
+	char log_name [100];
+	sprintf(log_name, "%s%s%d%s", folder, rx_log_, counter, extension_);
+	std::ofstream out_file_stats;
+	out_file_stats.open(log_name, std::ofstream::out); //erase and create a new file
+	out_file_stats << rx_msg << std::endl;
+	out_file_stats.close();
+	sprintf(log_name, "%s%s%d%s", folder, check_rx_log_, counter, extension_);
+	out_file_stats.open(log_name, std::ofstream::out); //erase and create a new file
+	out_file_stats.close();
 }
 
 double tod() {
@@ -83,32 +101,21 @@ std::string getMessage(std::string message2parse) {
 	return message;
 }
 
-//DONE: print in the received log file and create the flag file for the reception
-void printToFile(std::string rx_msg, int counter) { 
-	char log_name [100];
-	sprintf(log_name, "%s%d%s", rx_log_, counter, extension_);
-	std::ofstream out_file_stats;
-	out_file_stats.open(log_name, std::ofstream::out); //erase and create a new file
-	out_file_stats << rx_msg << std::endl;
-	out_file_stats.close();
-	sprintf(log_name, "%s%d%s", check_rx_log_, counter, extension_);
-	out_file_stats.open(log_name, std::ofstream::out); //erase and create a new file
-	out_file_stats.close();
-}
-
 int main(int argc, char* argv[]) {
 	cout << "Ciao" << endl;
 	if (argc != 4) {
 		cerr << "Usage:" <<endl;
-    cerr << "./mycc ID ip port" << endl;
+    cerr << "./m2mo ID ip port" << endl;
 		return -1;
 	}
 	int ID = atoi(argv[1]);
+	char* dir_label = argv[1];
 	std::string ip = argv[2];
 	std::string port = argv[3];
 	int RECEIVER = 255; // broadcast
 	int rx_counter(0);
 	cout << "ID " << ID << endl;
+	const int dir_err = mkdir(dir_label, S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
 	MdriverS2C_EvoLogics* pmDriver = connectModem(ip, port, ID);
 	int modemStatus_old = pmDriver->getStatus();
 	int modemStatus = pmDriver->updateStatus();
@@ -117,11 +124,11 @@ int main(int argc, char* argv[]) {
 
 	while (true) {
 	//check if there's something to tx
-		bool tx_flag = checkTxLog();
+		bool tx_flag = checkTxLog(dir_label);
 		//cout << "flag = " << tx_flag << endl;
 		if (tx_flag) {
 			//retreive sending time and data to send
-			std::string message2parse = readMessage();
+			std::string message2parse = readMessage(dir_label);
 			cout << "message2parse = " << message2parse << endl;
 			cout << "getMessage(message2parse)" << getMessage(message2parse) <<endl;
 			cout << "parseWait(message2parse) = " << parseWait(message2parse) << endl;
@@ -134,7 +141,7 @@ int main(int argc, char* argv[]) {
 			if (modemStatus == MODEM_IDLE_RX && modemStatus_old == MODEM_RX) {
 				std::string rx_msg = pmDriver->getRxPayload();
 				rx_counter ++;
-				printToFile(rx_msg,rx_counter);
+				printToFile(rx_msg,rx_counter,dir_label);
 				cout << "Rx Message " << ID << " " << rx_msg << endl;
 				pmDriver -> resetModemStatus();
 			}

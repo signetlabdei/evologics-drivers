@@ -1,6 +1,6 @@
 function RxPacket = GetFromPhy(CurrentNode)
 
-global NodeNum
+global NodeNum outFolder
 
 RxPacket = [];
 
@@ -9,7 +9,8 @@ if 0
     %for check
     for ind = 1: NodeNum
         if ind ~= CurrentNode
-            FileName = ['ToNode_', num2str(CurrentNode), '_FromNode_', num2str(ind), '.mat'];
+            FileName = ['/ToNode_', num2str(CurrentNode), '_FromNode_', num2str(ind), '.mat'];
+            FileName = strcat(outFolder, FileName);
             if exist(FileName, 'file') == 2
                 load(FileName);
                 disp(['Received: ', TxPacket.Type, ' for Msg: ', num2str(TxPacket.MsgID), ' from Node: ', num2str(TxPacket.Source)]);
@@ -22,8 +23,8 @@ if 0
     %-------------------
 else
     
-    DataFileName = 'FromPhy2Mac';
-    FileName = 'PhyRx*.txt';
+    DataFileName = strcat(outFolder, '/FromPhy2Mac');
+    FileName = strcat(outFolder, '/PhyRx*.txt');
     FileExistNum = dir(FileName);
     for ind = 1: length(FileExistNum)
         CurrentFileName = FileExistNum(ind).name;
@@ -32,7 +33,7 @@ else
         
         CurrentDataFileName = [DataFileName, x];
         
-        delete(CurrentFileName); 
+        delete(strcat(outFolder,'/',CurrentFileName)); 
 
         FileDataExistNum = dir(CurrentDataFileName);
         if length(FileDataExistNum) > 0

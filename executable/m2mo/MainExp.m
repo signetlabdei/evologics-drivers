@@ -1,7 +1,7 @@
 function MainExp(CurrentNode, TopologyNum, Hour, Min, Sec)
 %Main for experiment
 
-global NodeNum
+global NodeNum outFolder
 
 
 %channel param
@@ -55,29 +55,30 @@ end
 Tpd_info = DistMat ./ c;
 
 %clean former files
-FileName = 'FromMac2Phy.txt';
+outFolder = num2str(CurrentNode);
+FileName = strcat(outFolder,'/FromMac2Phy.txt');
 if exist(FileName, 'file') == 2
     delete(FileName);
 end
-FileName = 'MacTx.txt';
+FileName = strcat(outFolder,'/MacTx.txt');
 if exist(FileName, 'file') == 2
     delete(FileName);
 end
 
-DataFileName = 'FromPhy2Mac';
-FileName = 'PhyRx*.txt';
+DataFileName = strcat(outFolder,'/FromPhy2Mac');
+FileName = strcat(outFolder,'/PhyRx*.txt');
 FileExistNum = dir(FileName);
 for ind = 1: length(FileExistNum)
     CurrentFileName = FileExistNum(ind).name;
     TempName = CurrentFileName;
-    delete(CurrentFileName)
+    delete(strcat(outFolder,'/',CurrentFileName))
     
     loc = strfind(TempName, '.');
     x = TempName(loc-1:end);
     CurrentDataFileName = [DataFileName, x];
     FileDataExistNum = dir(CurrentDataFileName);
     if length(FileDataExistNum) > 0
-        delete(CurrentDataFileName)
+        delete(strcat(outFolder,'/',CurrentDataFileName))
     end
 end
 

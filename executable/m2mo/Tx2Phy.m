@@ -1,6 +1,6 @@
 function Tx2Phy(TxPacket)
 
-global NodeNum
+global NodeNum outFolder
 
 disp(['Transmitting ', TxPacket.Type, ' for Msg: ', num2str(TxPacket.MsgID), ' to node(s) ', num2str(TxPacket.DestVec),' at time : ', num2str(TxPacket.TxTime)]);
 
@@ -12,8 +12,8 @@ if 0
     for ind = 1: NodeNum
         if ind ~= TxPacket.Source
             if rand() > Pe
-                FileName = ['ToNode_', num2str(ind), '_FromNode_', num2str(TxPacket.Source)];
-                save(FileName, 'TxPacket');
+                FileName = ['/ToNode_', num2str(ind), '_FromNode_', num2str(TxPacket.Source)];
+                save(strcat(outFolder, FileName), 'TxPacket');
             end
         end
     end
@@ -51,13 +51,13 @@ else
     
     TextToPhy = [TxTimeBits, TxVec];
     
-    FileName = 'FromMac2Phy.txt';
-    fid = fopen(FileName, 'w');
+    FileName = '/FromMac2Phy.txt';
+    fid = fopen(strcat(outFolder,FileName), 'w');
     fprintf(fid,'%s\n', TextToPhy);
     fclose(fid);
     
-    FileName = 'MacTx.txt';
-    fid = fopen(FileName, 'w');
+    FileName = '/MacTx.txt';
+    fid = fopen(strcat(outFolder,FileName), 'w');
     fclose(fid);
 end
 

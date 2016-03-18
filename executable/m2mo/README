@@ -7,5 +7,10 @@ with
 	IP  -  ip of the modem
 	PT  -  port of the modem
 
-example
-./runM2Mo.sh 1 1 09 50 192.168.100.1 9201
+run one node per shell instance. Example
+./runM2Mo.sh 1 1 09 50 192.168.100.201 9201
+./runM2Mo.sh 2 1 09 50 192.168.100.202 9201
+./runM2Mo.sh 3 1 09 50 192.168.100.203 9201
+./runM2Mo.sh 4 1 09 50 192.168.100.204 9201
+./runM2Mo.sh 5 1 09 50 192.168.100.205 9201
+if matlab 32 bit in 64 system then replace matlab with matlab -glnx8
