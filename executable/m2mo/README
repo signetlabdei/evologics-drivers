@@ -1,16 +1,16 @@
 To run the example script, please type:
-./runM2Mo.sh ID Tp HH MM IP PT
+./runM2Mo.sh ID DST Tp HH MM TT IP PT
 with 
-	Tp  -  topology (1-4)
+	ID  -  unique identifier
+	DST -  unique identifier of the destination
+	Tp  -  packet period
 	HH  -  hour
 	MM  -  minutes
+	TT  -  total time duration, in secods
 	IP  -  ip of the modem
 	PT  -  port of the modem
 
 run one node per shell instance. Example
-./runM2Mo.sh 1 1 09 50 192.168.100.201 9201
-./runM2Mo.sh 2 1 09 50 192.168.100.202 9201
-./runM2Mo.sh 3 1 09 50 192.168.100.203 9201
-./runM2Mo.sh 4 1 09 50 192.168.100.204 9201
-./runM2Mo.sh 5 1 09 50 192.168.100.205 9201
+./runM2Mo.sh 2 1 3 12 25 25 192.168.100.206 9201
+./runM2Mo.sh 1 2 2 12 25 25 192.168.100.205 9201
 if matlab 32 bit in 64 system then replace matlab with matlab -glnx8
