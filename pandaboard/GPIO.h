@@ -47,6 +47,8 @@
 #include <unistd.h>
 #include <iostream>
 
+#define OUT "out"
+#define IN "in"
 
 // Function Declaration:
 /**
@@ -88,10 +90,10 @@ int Init_GPIO(const std::string gpio_pin ,const std::string gpio_direction)
 	//Using sysfs we need to write "32" to /sys/class/gpio/export
 	//This will create the folder /sys/class/gpio/gpioPIN
 	if ((fp = fopen("/sys/class/gpio/export", "ab")) == NULL)
-		{
-			printf("Cannot open export file.\n");
-			exit(1);
-		}
+	{
+		printf("Cannot open export file.\n");
+		exit(1);
+	}
 	//Set pointer to begining of the file
 	rewind(fp);
 	strcpy(set_value, gpio_pin.c_str());
@@ -109,9 +111,15 @@ int Init_GPIO(const std::string gpio_pin ,const std::string gpio_direction)
 		printf("Cannot open direction file.\n");
 		exit(1);
 	}
+	if(! gpio_direction.compare(IN) * gpio_direction.compare(OUT))
+	{
+		printf("Error: %s is a wrong direction. Please, type %s or %s \n", 
+						gpio_direction.c_str(), IN, OUT);
+		exit(1);
+	}
 	//Set pointer to begining of the file
 	rewind(fp);
-	//Write our value of "out" to the file
+	//Write our value of direction to the file
 	strcpy(set_value, gpio_direction.c_str());
 	fwrite(&set_value, sizeof(char), gpio_direction.length(), fp);
 	fclose(fp);
