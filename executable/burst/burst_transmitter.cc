@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2015 Regents of the SIGNET lab, University of Padova.
+// Copyright (c) 2016 Regents of the SIGNET lab, University of Padova.
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -27,7 +27,7 @@
 // ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 /**
- * @file   main.cc
+ * @file   burst_transmitter.cc
  * @author Filippo Campagnaro
  * @version 1.0.0
  *

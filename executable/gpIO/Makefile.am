@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2015 Regents of the SIGNET lab, University of Padova.
+# Copyright (c) 2016 Regents of the SIGNET lab, University of Padova.
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -26,28 +26,28 @@
 # OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF 
 # ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  
-bin_PROGRAMS = tx rx
+bin_PROGRAMS = pb_tx pb_rx
 
-tx_SOURCES = sender.cc
+pb_tx_SOURCES = pb_sender.cc
 
-rx_SOURCES = receiver.cc
+pb_rx_SOURCES = pb_receiver.cc
 
-tx_CPPFLAGS = -I$(top_srcdir)/utilities \
+pb_tx_CPPFLAGS = -I$(top_srcdir)/utilities \
 	-I$(top_srcdir)/ms2c_evologics \
 	-I$(top_srcdir)/uwmphy_modem \
 	-I$(top_srcdir)/pandaboard
 
-rx_CPPFLAGS = -I$(top_srcdir)/utilities \
+pb_rx_CPPFLAGS = -I$(top_srcdir)/utilities \
 	-I$(top_srcdir)/ms2c_evologics \
 	-I$(top_srcdir)/uwmphy_modem \
 	-I$(top_srcdir)/pandaboard
 
-tx_LDADD = ../../utilities/libutilities.la \
+pb_tx_LDADD = ../../utilities/libutilities.la \
 	../../ms2c_evologics/libms2c_evologics.la \
 	../../uwmphy_modem/libuwmphy_modem.la \
 	../../pandaboard/libpandaboard.la 
 
-rx_LDADD = ../../utilities/libutilities.la \
+pb_rx_LDADD = ../../utilities/libutilities.la \
 	../../ms2c_evologics/libms2c_evologics.la \
 	../../uwmphy_modem/libuwmphy_modem.la \
 	../../pandaboard/libpandaboard.la 

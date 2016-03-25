@@ -26,13 +26,11 @@
 # OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF 
 # ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  
-bin_PROGRAMS = base_sample
+AM_CXXFLAGS = -Wall -ggdb3
 
-base_sample_SOURCES = base.cc
+noinst_LTLIBRARIES = libutilities.la
 
-base_sample_CPPFLAGS = -I$(top_srcdir)/utilities \
-	-I$(top_srcdir)/ms2c_evologics \
-	-I$(top_srcdir)/uwmphy_modem
-base_sample_LDADD = ../../utilities/libutilities.la \
-	../../ms2c_evologics/libms2c_evologics.la \
-	../../uwmphy_modem/libuwmphy_modem.la 
+libutilities_la_SOURCES = utilities.h
+
+libutilities_la_CPPFLAGS = -I$(top_srcdir)/ms2c_evologics
+libutilities_la_LIBADD =	../ms2c_evologics/libms2c_evologics.la

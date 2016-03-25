@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2015 Regents of the SIGNET lab, University of Padova.
+# Copyright (c) 2016 Regents of the SIGNET lab, University of Padova.
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -26,24 +26,24 @@
 # OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF 
 # ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  
-bin_PROGRAMS = tx rx
+bin_PROGRAMS = burst_tx burst_rx
 
-tx_SOURCES = transmitter.cc
+burst_tx_SOURCES = burst_transmitter.cc
 
-rx_SOURCES = receiver.cc
+burst_rx_SOURCES = burst_receiver.cc
 
-tx_CPPFLAGS = -I$(top_srcdir)/utilities \
+burst_tx_CPPFLAGS = -I$(top_srcdir)/utilities \
 	-I$(top_srcdir)/ms2c_evologics \
 	-I$(top_srcdir)/uwmphy_modem 
 
-rx_CPPFLAGS = -I$(top_srcdir)/utilities \
+burst_rx_CPPFLAGS = -I$(top_srcdir)/utilities \
 	-I$(top_srcdir)/ms2c_evologics \
 	-I$(top_srcdir)/uwmphy_modem
 
-tx_LDADD = ../../utilities/libutilities.la \
+burst_tx_LDADD = ../../utilities/libutilities.la \
 	../../ms2c_evologics/libms2c_evologics.la \
 	../../uwmphy_modem/libuwmphy_modem.la 
 
-rx_LDADD = ../../utilities/libutilities.la \
+burst_rx_LDADD = ../../utilities/libutilities.la \
 	../../ms2c_evologics/libms2c_evologics.la \
 	../../uwmphy_modem/libuwmphy_modem.la 
