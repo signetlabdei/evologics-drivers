@@ -30,7 +30,9 @@ AM_CXXFLAGS = -Wall -ggdb3
 
 noinst_LTLIBRARIES = libutilities.la
 
-libutilities_la_SOURCES = utilities.h
+libutilities_la_SOURCES = utilities.h utilities.cc
 
-libutilities_la_CPPFLAGS = -I$(top_srcdir)/ms2c_evologics
-libutilities_la_LIBADD =	../ms2c_evologics/libms2c_evologics.la
+libutilities_la_CPPFLAGS = -I$(top_srcdir)/ms2c_evologics \
+						   -I$(top_srcdir)/uwmphy_modem
+libutilities_la_LIBADD = ../ms2c_evologics/libms2c_evologics.la \
+						 ../uwmphy_modem/libuwmphy_modem.la

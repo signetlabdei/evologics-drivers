@@ -31,13 +31,14 @@
  * @author Filippo Campagnaro
  * @version 1.0.0
  *
- * \brief utilities functions
+ * \brief Haeder of utilities functions
  *
  */
 
+#ifndef T2MO_UTILITIES
+#define T2MO_UTILITIES
+
 #include "mdriverS2C_EvoLogics.h"
-#include <unistd.h>
-#include <math.h>
 
 #define ACK 1
 #define NOACK 0
@@ -49,28 +50,6 @@ typedef int64_t msec_t;
 // // or the time the system started (Windows).
 msec_t time_ms(void);
 
-#if defined(__WIN32__)
-
-#include <windows.h>
-
-msec_t time_ms(void)
-{
-  return timeGetTime();
-}
-
-#else
-
-#include <sys/time.h>
-
-msec_t time_ms(void)
-{
-  struct timeval tv;
-  gettimeofday(&tv, NULL);
-  return (msec_t)tv.tv_sec * 1000 + tv.tv_usec / 1000;
-}
-
-#endif
-
 /**
  * Build a message of fixed length, composed by a string, a sequence number and 
  * free spaces
@@ -80,26 +59,15 @@ msec_t time_ms(void)
  *
  * @return the built message
 **/
-std::string create_message(std::string m, int c, uint size) {
-	std::stringstream message;
-	message << m;
-  message << c;
-	if (message.str().size()> size) {
-		cerr << "Message too long" << endl;
-	}
-	while (message.str().size() < size) 
-		message << " ";
-	return message.str();
-}
+std::string create_message(std::string m, int c, uint size);
 
 /**
  * Gives the number of milliseconds passed from January 1st, 1970 at UTC
  *
  * @return the Unix Time Stamp in milliseconds
 **/
-inline unsigned long int getEpoch() {
-	return time_ms();//1000.0*time(NULL);
-}
+unsigned long int getEpoch();
+
 /**
  * Connect the modem socket
  *
@@ -109,16 +77,7 @@ inline unsigned long int getEpoch() {
  *
  * @return the driver
 **/
-MdriverS2C_EvoLogics* connectModem(std::string ip, std::string port, int ID) {
-  MdriverS2C_EvoLogics* pmDriver = new MdriverS2C_EvoLogics(ip+":"+port);
-  //MdriverS2C_EvoLogics* pmDriver = &pmDriver1;
-  pmDriver->setID(ID);
-  pmDriver->setModemID(false);
-  pmDriver->setKeepOnlineMode(false);
-  pmDriver->start();
-  //MdriverS2C_EvoLogics *pt = malloc()
-  return pmDriver;
-}
+MdriverS2C_EvoLogics* connectModem(std::string ip, std::string port, int ID);
 
 /**
  * Send a packet
@@ -128,8 +87,6 @@ MdriverS2C_EvoLogics* connectModem(std::string ip, std::string port, int ID) {
  * @param std::string message message that has to be sent
  * @param bool ack flag to indicate whether to transmit IM with or without ack request
 **/
+void transmit(MdriverS2C_EvoLogics* pmDriver, int dest, std::string message,bool ack);
 
-inline void transmit(MdriverS2C_EvoLogics* pmDriver, int dest, std::string message,bool ack) {
-	pmDriver->updateTx(dest, message);
-  ack ? pmDriver->modemTxACK() : pmDriver->modemTx();
-}
+#endif

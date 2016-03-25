@@ -30,4 +30,4 @@ AM_CXXFLAGS = -Wall -ggdb3
 
 noinst_LTLIBRARIES = libpandaboard.la
 
-libpandaboard_la_SOURCES = GPIO.h
+libpandaboard_la_SOURCES = GPIO.h GPIO.cc
