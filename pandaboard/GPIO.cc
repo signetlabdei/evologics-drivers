@@ -140,8 +140,13 @@ char* toggle_input(const std::string gpio_pin)
 	//Set pointer to begining of the file
 	rewind(fp);
 	//Read from the file 
-	fread(&get_value, sizeof(char), 1, fp);
+	if (fread(&get_value, sizeof(char), 1, fp) != ftell(fp)) 
+	{
+	  fputs ("Reading error",stderr); 
+	  exit (1);
+	}
+	
 	printf("Read value %s \n", get_value);
 	fclose(fp);
-	return get_value;
+	return new char(*get_value);
 }
