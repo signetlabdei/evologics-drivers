@@ -104,6 +104,7 @@ void printToFile(int src, int tec_id, std::string rx_msg, char * folder) {
 /**
  * Main: the transmitter
 **/
+ //TODO: decide how to set number and identifier of phys and their sockets
 int main(int argc, char* argv[]) {
 	// CHECK parameters
   cout << "Ciao" << endl;
@@ -160,9 +161,11 @@ int main(int argc, char* argv[]) {
 
 				usleep (min_sleeping_time); //sleep(); if sec.
 				//TODO:CHECK IF hdr->tec_id is in my phys
-				k_o ? transmitBurst(pmDriver[hdr->tec_id],hdr->des_id, hdr->data) :
-				    	transmit(pmDriver[hdr->tec_id],hdr->des_id, hdr->data, ACK);
-				//TODO: CHECK IF msg_id > 0 and if the dest_id is unicast; In that case, store msg_id for ack.
+				if(pmDriver.find(hdr->tec_id)!=pmDriver.end()) {
+					k_o ? transmitBurst(pmDriver[hdr->tec_id],hdr->des_id, hdr->data) :
+					    	transmit(pmDriver[hdr->tec_id],hdr->des_id, hdr->data, ACK);
+					//TODO: CHECK IF msg_id > 0 and if the dest_id is unicast; In that case, store msg_id for ack.
+				}
 			} 
 
 
@@ -179,17 +182,22 @@ int main(int argc, char* argv[]) {
 			std::cout << getEpoch() << " Sent " << ID  << endl;
 		}
 		else {
-			//check if there is something received and write it in the log
-			if (modemStatus == MODEM_IDLE_RX && modemStatus_old == MODEM_RX) {
-				std::string rx_msg = pmDriver[1]->getRxPayload();
-				int src = pmDriver[1]->getSrc();
-				printToFile(src,1,rx_msg,dir_label);
-				cout << getEpoch() << " Rx Message " << ID << " " << rx_msg << endl;
-				pmDriver[1] -> resetModemStatus();
+			//TODO: loop over all the PHY in the following way
+			for(std::map<int,MdriverS2C_EvoLogics*>::iterator driver_iter = pmDriver.begin();
+        driver_iter != pmDriver.end();
+        driver_iter++) {
+			
+				//check if there is something received and write it in the log
+				if (modemStatus == MODEM_IDLE_RX && modemStatus_old == MODEM_RX) {
+					std::string rx_msg = pmDriver[1]->getRxPayload();
+					int src = driver_iter->second->getSrc();
+					printToFile(src,1,rx_msg,dir_label);
+					cout << getEpoch() << " Rx Message " << ID << " " << rx_msg << endl;
+					driver_iter-> second -> resetModemStatus();
+				}
+				modemStatus_old = driver_iter->second->getStatus();
+				modemStatus = driver_iter->second->updateStatus();
 			}
-			modemStatus_old = pmDriver[1]->getStatus();
-			modemStatus = pmDriver[1]->updateStatus();
-
 		}
 		usleep(min_sleeping_time);
 
