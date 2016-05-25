@@ -101,3 +101,21 @@ void transmitBurst(MdriverS2C_EvoLogics* pmDriver, int dest, std::string message
   pmDriver->updateTx(dest, message);
   pmDriver->modemTxBurst();
 }
+
+double tod() {
+  timeval tv;
+  gettimeofday(&tv, 0);
+  double s = tv.tv_sec;
+  s += (1e-6 * tv.tv_usec);
+  return s;
+}
+
+int time2epoch(int hour, int min, int sec) {
+  time_t rawtime;
+  time (&rawtime);
+  struct tm * timeinfo = localtime (&rawtime);
+  timeinfo -> tm_sec = sec;
+  timeinfo -> tm_min = min;
+  timeinfo -> tm_hour = hour;
+  return mktime(timeinfo);
+}

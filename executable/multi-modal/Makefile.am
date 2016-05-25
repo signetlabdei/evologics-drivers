@@ -26,14 +26,24 @@
 # OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF 
 # ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  
-bin_PROGRAMS = mult_tx
+bin_PROGRAMS = mult_tx m2mo_multi
 
 mult_tx_SOURCES = mult_transmitter.cc
+
+m2mo_multi_SOURCES = m2mo_multi.cc m2mo_multi.h
 
 mult_tx_CPPFLAGS = -I$(top_srcdir)/utilities \
 	-I$(top_srcdir)/ms2c_evologics \
 	-I$(top_srcdir)/uwmphy_modem 
 
+m2mo_multi_CPPFLAGS = -I$(top_srcdir)/utilities \
+	-I$(top_srcdir)/ms2c_evologics \
+	-I$(top_srcdir)/uwmphy_modem 
+
 mult_tx_LDADD = ../../utilities/libutilities.la \
+	../../ms2c_evologics/libms2c_evologics.la \
+	../../uwmphy_modem/libuwmphy_modem.la 
+
+m2mo_multi_LDADD = ../../utilities/libutilities.la \
 	../../ms2c_evologics/libms2c_evologics.la \
 	../../uwmphy_modem/libuwmphy_modem.la 

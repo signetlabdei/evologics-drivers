@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2015 Regents of the SIGNET lab, University of Padova.
+# Copyright (c) 2016 Regents of the SIGNET lab, University of Padova.
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -28,7 +28,7 @@
  
 bin_PROGRAMS = m2mo
 
-m2mo_SOURCES = m2mo.cc
+m2mo_SOURCES = m2mo.cc m2mo.h
 
 m2mo_CPPFLAGS = -I$(top_srcdir)/utilities \
 	-I$(top_srcdir)/ms2c_evologics \

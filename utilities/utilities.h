@@ -100,4 +100,9 @@ void transmit(MdriverS2C_EvoLogics* pmDriver, int dest, std::string message, boo
 **/
 void transmitBurst(MdriverS2C_EvoLogics* pmDriver, int dest, std::string message);
 
+
+double tod();
+
+int time2epoch(int hour, int min, int sec);
+
 #endif

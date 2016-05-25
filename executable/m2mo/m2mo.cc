@@ -36,21 +36,13 @@
  */
 
 #include "utilities.h"
+#include "m2mo.h"
 #include <unistd.h>
 #include <math.h>
 #include <time.h>
 #include <sys/time.h>
 #include <sys/stat.h>
 
-static char const* check_tx_log_ = "/MacTx.txt";
-static char const* tx_log_ = "/FromMac2Phy.txt";
-
-static char const* check_rx_log_ = "/PhyRx";
-//static char const* rx_log_ = "'PhyRx*.txt";
-static char const* rx_log_ = "/FromPhy2Mac";
-static char const* extension_ = ".txt";
-
-static char const token_separator_ = ',';
 //check if the transmitting file exists
 bool checkTxLog(char * folder) {
 	ifstream input_file_;
@@ -91,23 +83,7 @@ void printToFile(std::string rx_msg, int counter, char * folder) {
 	out_file_stats.close();
 }
 
-double tod() {
-	timeval tv;
-	gettimeofday(&tv, 0);
-	double s = tv.tv_sec;
-	s += (1e-6 * tv.tv_usec);
-	return s;
-}
 
-int time2epoch(int hour, int min, int sec) {
-	time_t rawtime;
-	time (&rawtime);
-	struct tm * timeinfo = localtime (&rawtime);
-	timeinfo -> tm_sec = sec;
-	timeinfo -> tm_min = min;
-	timeinfo -> tm_hour = hour;
-	return mktime(timeinfo);
-}
 
 //DONE: retreive how long we need to wait before to tx the message, parsing the
 //      line imported from the TxLog file and subtracting the current time
@@ -155,7 +131,6 @@ int main(int argc, char* argv[]) {
 	MdriverS2C_EvoLogics* pmDriver = connectModem(ip, port, ID);
 	int modemStatus_old = pmDriver->getStatus();
 	int modemStatus = pmDriver->updateStatus();
-	const int min_sleeping_time = 5; // 200 ms 
 	//main cicle
 
 	while (true) {
