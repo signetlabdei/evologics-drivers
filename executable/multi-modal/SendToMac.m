@@ -65,7 +65,7 @@ if ~any( 1-( size(packet2sendMat)==[3 1] ) ) || ~any( 1-( size(packet2sendMat)==
             
             dataOutHex = bin2hex( dec2bin( singleEntry,SINGLEENTRY_FLD.BITS ) );
             
-            % The -
+            % The "-1" is for convenience when the MsgIDVec is not needed
             fprintf( fout , '%d,%d,%d,%s\n' , -1 , destination , it , dataOutHex );
         end
         
@@ -73,7 +73,6 @@ if ~any( 1-( size(packet2sendMat)==[3 1] ) ) || ~any( 1-( size(packet2sendMat)==
     end    
 
 else % The size of packet2sendMat is expected to be [ 3 4+N ]
-    %%%TODO: ELSEIF? Any other conditions to check here?
     
     % Find required technologies
     indTechUsed = any( packet2sendMat , 2 );
@@ -108,7 +107,7 @@ else % The size of packet2sendMat is expected to be [ 3 4+N ]
     
 end
 
-% Signal that there is a transmission ready for it
+% Signal that there is a transmission ready
 fdes = fopen( [outFileDir '/' DESERTreadyFileName] , 'w' );
 fclose(fdes);
 
