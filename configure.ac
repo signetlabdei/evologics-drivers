@@ -49,6 +49,7 @@ AC_CONFIG_FILES([
     executable/burst/Makefile
     executable/gpIO/Makefile
     executable/m2mo/Makefile
+    executable/multi-modal/Makefile
     ])
 
 AC_OUTPUT 

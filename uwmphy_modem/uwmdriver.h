@@ -270,6 +270,14 @@ public:
 	  */
 	 std::string getLogFile();
 
+	 /**
+	  * Method to set the name of the disk-fiel used to print the log messages.
+	  * @param file_name log file name
+	  * 
+	  * @return UWMPhy_modem::logFile
+	  */
+	 void  setLogFile(std::string file_name) { logfile = file_name; }
+
 	 
          virtual void emptyModemQueue() = 0;
 

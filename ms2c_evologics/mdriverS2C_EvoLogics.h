@@ -61,14 +61,17 @@ enum STATES_TX {
   TX_STATE_SEND_CLOSE, TX_STATE_SEND_CLOSE_DONE
 };
 
-
+enum ACK_STATES {
+	ACK_NO_CARING = 0,
+	ACK_PENDING, ACK_CONFIRMED, ACK_FAILED
+};
 
 
 typedef enum STATES_RX rx_states_t;
 
 typedef enum STATES_TX tx_states_t;
 
-
+typedef enum ACK_STATES ack_states_t;
 
 
 
@@ -80,6 +83,8 @@ class MdriverS2C_EvoLogics : public UWMdriver
        MinterpreterAT mInterpreter; /** < Object that builds/parses AT messages. */
        Msocket mConnector; /** < Object that handles the physical host to modem communications via TCP/IP sockets. */
        
+			 ack_states_t m_status_ack_; /**< ACK status for sending im with ack and burst. */
+
        tx_states_t m_status_tx; /**< TX status for the transmission manager methods, see methods MdriverS2C_EvoLogics::modemTxManager and MdriverS2C_EvoLogics::updateStatus. */
             
        rx_states_t m_status_rx; /**< RX status for the MdriverS2C_EvoLogics::updateStatus() method. */
@@ -160,7 +165,7 @@ class MdriverS2C_EvoLogics : public UWMdriver
 		
 		//virtual void printOnLog(log_level_t log_level,string message);
                         
-                        		
+    ack_states_t getAckStatus() {return m_status_ack_; }                   		
 	protected:
 
 		/** 

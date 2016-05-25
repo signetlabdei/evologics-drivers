@@ -58,18 +58,46 @@ unsigned long int getEpoch() {
   return (msec_t)tv.tv_sec * 1000 + tv.tv_usec / 1000; 
 }
 
-MdriverS2C_EvoLogics* connectModem(std::string ip, std::string port, int ID) {
+MdriverS2C_EvoLogics* connectModem(std::string ip, std::string port, int ID, 
+                      bool set_id, std::string log_name) {
   MdriverS2C_EvoLogics* pmDriver = new MdriverS2C_EvoLogics(ip+":"+port);
   //MdriverS2C_EvoLogics* pmDriver = &pmDriver1;
+  pmDriver->setResetModemQueue(true);
   pmDriver->setID(ID);
-  pmDriver->setModemID(false);
-  pmDriver->setKeepOnlineMode(false);
+  pmDriver->setModemID(set_id);
+  pmDriver->setKeepOnlineMode(false); // NOT SET HERE
+  pmDriver->setLogFile(log_name);
   pmDriver->start();
+  usleep(500000);
+  //pmDriver->setResetModemQueue(false);
+  pmDriver->updateStatus();
+  pmDriver->modemSetID();
+  usleep(5000);
+  pmDriver->setID(ID);
+  pmDriver->setModemID(set_id);
+
+  pmDriver->updateStatus();
+  pmDriver->modemSetID();
+  pmDriver->updateStatus();
+  pmDriver->modemSetID();
+  pmDriver->updateStatus();
+  pmDriver->modemSetID();
+  pmDriver->updateStatus();
+  pmDriver->modemSetID();
+  pmDriver->updateStatus();
+  pmDriver->modemSetID();/*
+  pmDriver->updateStatus();
+  pmDriver->modemSetID();*/
   //MdriverS2C_EvoLogics *pt = malloc()
   return pmDriver;
 }
 
-void transmit(MdriverS2C_EvoLogics* pmDriver, int dest, std::string message,bool ack) {
+void transmit(MdriverS2C_EvoLogics* pmDriver, int dest, std::string message, bool ack) {
   pmDriver->updateTx(dest, message);
   ack ? pmDriver->modemTxACK() : pmDriver->modemTx();
+}
+
+void transmitBurst(MdriverS2C_EvoLogics* pmDriver, int dest, std::string message) {
+  pmDriver->updateTx(dest, message);
+  pmDriver->modemTxBurst();
 }

@@ -77,6 +77,7 @@ static std::string hexdumplog(std::string str) {
 MdriverS2C_EvoLogics::MdriverS2C_EvoLogics(std::string path) : UWMdriver(), mInterpreter(this), mConnector(this, path) {
     m_status_tx = TX_STATE_IDLE;
     m_status_rx = RX_STATE_IDLE;
+    m_status_ack_ = ACK_NO_CARING;
     setConnections(&mInterpreter, &mConnector);
 }
 
@@ -187,8 +188,14 @@ modem_state_t MdriverS2C_EvoLogics::updateStatus() {
 		  (pr_msg.find("BUSY BACKOFF STATE") != string::npos) || (pr_msg.find("BUSY DELIVERING") != string::npos) ||
 		  (pr_msg.find("FAILEDIM") != string::npos) || (pr_msg.find("FAILED") != string::npos) || (pr_msg.find("ERROR") != string::npos))
 		{
+          if ((pr_msg.find("FAILEDIM") != string::npos) || (pr_msg.find("FAILED") != string::npos)) {
+            m_status_ack_ = ACK_FAILED;
+          }
 		  queue_tx.push(pr_msg);
 		}
+        if ((pr_msg.find("DELIVEREDIM") != string::npos) || (pr_msg.find("DELIVERED") != string::npos)) {
+          m_status_ack_ = ACK_CONFIRMED;
+        }
                 p_offset += pr_msg.size();
                 p_parser = rx_msg.find(parser, p_offset + 1);
             } // End while (p_parser!=std::string::npos)
@@ -342,7 +349,7 @@ modem_state_t MdriverS2C_EvoLogics::updateStatus() {
         }// End while (cread)
 
     }// End if (status == _TX || status == _CFG)        
-
+    
     return status;
 }
 
@@ -376,6 +383,7 @@ void MdriverS2C_EvoLogics::modemTxManager() {
         break;
       case TX_STATE_SEND_IM:
 	// Build the instant message
+      m_status_ack_ = ACK_NO_CARING;
 	  tx_msg = mInterpreter.build_sendim(payload_tx.length(), dest, "noack", payload_tx);
 	  sstr << "MODEM_TX_MANAGER::SENDIM = " << hexdumplog(tx_msg);
 	  sstr >> strlog;
@@ -383,6 +391,7 @@ void MdriverS2C_EvoLogics::modemTxManager() {
         break;
       case TX_STATE_SEND_IM_ACK:
     // Build the instant message
+      m_status_ack_ = ACK_PENDING;
       tx_msg = mInterpreter.build_sendim(payload_tx.length(), dest, "ack", payload_tx);
       sstr << "MODEM_TX_MANAGER::SENDIM = " << hexdumplog(tx_msg);
       sstr >> strlog;
@@ -390,6 +399,7 @@ void MdriverS2C_EvoLogics::modemTxManager() {
         break;
       case TX_STATE_SEND_BURST:
 	//build a burst data
+      m_status_ack_ = ACK_PENDING;
 	  tx_msg = mInterpreter.build_atsend(payload_tx.length(), dest, payload_tx);
 	sstr << "MODEM_TX_MANAGER::SEND = " << hexdumplog(tx_msg);
 	sstr >> strlog;

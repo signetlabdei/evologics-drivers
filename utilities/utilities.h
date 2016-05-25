@@ -73,11 +73,12 @@ unsigned long int getEpoch();
  *
  * @param std::string ip Ip address of the modem
  * @param std::string port socket port number 
- * @ int ID Identifier of the node
- *
+ * @param int ID Identifier of the node
+ * @param bool set_id set the actual id of the node or not (not by default).
  * @return the driver
 **/
-MdriverS2C_EvoLogics* connectModem(std::string ip, std::string port, int ID);
+MdriverS2C_EvoLogics* connectModem(std::string ip, std::string port, int ID, 
+											bool set_id = false, std::string log_name = "");
 
 /**
  * Send a packet
@@ -87,6 +88,16 @@ MdriverS2C_EvoLogics* connectModem(std::string ip, std::string port, int ID);
  * @param std::string message message that has to be sent
  * @param bool ack flag to indicate whether to transmit IM with or without ack request
 **/
-void transmit(MdriverS2C_EvoLogics* pmDriver, int dest, std::string message,bool ack);
+void transmit(MdriverS2C_EvoLogics* pmDriver, int dest, std::string message, bool ack = false);
+
+/**
+ * Send via keep_online mode
+ *
+ * @param MdriverS2C_EvoLogics* pmDriver pointer to the modem socket
+ * @param int dest Destination node Identifier
+ * @param std::string message message that has to be sent
+ * @param bool ack flag to indicate whether to transmit IM with or without ack request
+**/
+void transmitBurst(MdriverS2C_EvoLogics* pmDriver, int dest, std::string message);
 
 #endif

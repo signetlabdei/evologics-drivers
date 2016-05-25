@@ -34,6 +34,7 @@ SUBDIRS = uwmphy_modem \
     executable/base_sample \
     executable/burst \
     executable/gpIO \
-    executable/m2mo
+    executable/m2mo \
+    executable/multi-modal
 
 ACLOCAL_AMFLAGS = -I m4
