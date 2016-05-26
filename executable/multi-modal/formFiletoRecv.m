@@ -54,10 +54,10 @@ fileTailTag2 = 'toMac.txt';
 if sum(size(packet2sendMat)==[3 1])==2 || sum(size(packet2sendMat)==[1 3])==2  % The size of packet2sendMat is [3 1]
 
     singleEntry = packet2sendMat( tech );
-    dataOutHex = bin2hex( [ dec2bin( source,SOURCEID_FLD.BITS ) dec2bin( singleEntry,SINGLEENTRY_FLD.BITS ) ] );
+    dataOutHex = bin2hex( dec2bin( singleEntry,SINGLEENTRY_FLD.BITS ) );
     
     fout = fopen( [outFileDir '/' fileHeadTag2 num2str(tech) fileTailTag2 ] , 'w' );
-    fprintf( fout , '%s\n' , dataOutHex );
+    fprintf( fout , '%d,%s\n' , source,dataOutHex );
     fclose( fout );
     
 
@@ -69,14 +69,14 @@ else % The size of packet2sendMat is expected to be [ 3 4+N ]
     pckSize = packet2sendMat( tech,2 );
     origSource = packet2sendMat( tech,3 );
     pckInd = packet2sendMat( tech,4 );
-    historyVec = packet2sendMat( tech,5:end );
+    historyVec = [ zeros(1,HISTORYVEC_FLD.BITS-6) packet2sendMat( tech,5:end ) ];
     
-    dataOutBin = [ dec2bin( source,SOURCEID_FLD.BITS ) dec2bin(pQueue,PQUEUE_FLD.BITS) dec2bin(pckSize,PCKSIZE_FLD.BITS) dec2bin(origSource,ORIGSOURCE_FLD.BITS) dec2bin(pckInd,PCKIND_FLD.BITS) num2str(historyVec,'%d') ];
+    dataOutBin = [ dec2bin(pQueue,PQUEUE_FLD.BITS) dec2bin(pckSize,PCKSIZE_FLD.BITS) dec2bin(origSource,ORIGSOURCE_FLD.BITS) dec2bin(pckInd,PCKIND_FLD.BITS) num2str(historyVec,'%d') ];
     
     dataOutHex = bin2hex( dataOutBin );
     
     fout = fopen( [outFileDir '/' fileHeadTag2 num2str(tech) fileTailTag2 ] , 'w' );
-    fprintf( fout , '%s\n' , dataOutHex );
+    fprintf( fout , '%d,%s\n' , source , dataOutHex );
     fclose( fout );
     
 end

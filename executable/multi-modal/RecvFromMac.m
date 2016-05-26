@@ -39,7 +39,10 @@ rxFiles = dir( [ outFileDir '/' fileHeadTag1 '*' fileTailTag1 ] );
 % If no file found, just return an all-zero matrix
 %%% TODO: we should just send back something simpler, like a -1 or a "false"
 if isempty( rxFiles )
+    rxMat = {};
     return;
+else
+    rxMat = cell( length( rxFiles ) , 1 );
 end
 
     
@@ -50,34 +53,30 @@ for ff = 1 : length( rxFiles )
     
     readFileName = [outFileDir '/' fileHeadTag2 fileTag fileTailTag2];
     fout = fopen( readFileName , 'r' );
-    dataRead = fscanf( fout , '%s' );
+    textRead = fscanf( fout , '%s' );
     fclose(fout);
     delete( [outFileDir '/' fileHeadTag1 fileTag fileTailTag1] );
     delete( [outFileDir '/' fileHeadTag2 fileTag fileTailTag2] );
     
+    % Process read string to find sourceID and hex data
+    textRead_scan = textscan( textRead , '%s' , 'Delimiter' , ',' );
+    sourceID = str2double( textRead_scan{1}{1} );
+    dataRead = textRead_scan{1}{2};
+    
     % Convert to binary stream
     dataRead_bin = hex2bin( dataRead );
     
-    if length(dataRead_bin)-SOURCEID_FLD.BITS <= 24 % If we read only 3 bytes + the sourceID, act accordingly
-        
-        % Delete heading zeros
-        dataRead_bin( 1 : end-(SOURCEID_FLD.BITS+SINGLEENTRY_FLD.BITS) ) = [];
+    if length(dataRead_bin) == 24 % If we read only 3 bytes + the sourceID, act accordingly
         
         % Extract source ID and single pQueue entry
-        sourceID = bin2dec( dataRead_bin( SOURCEID_FLD.OFFSET + (1:SOURCEID_FLD.BITS) ) );
         pQueue = bin2dec( dataRead_bin( SINGLEENTRY_FLD.OFFSET + (1:SINGLEENTRY_FLD.BITS) ) );
         
-        rxMat = [sourceID pQueue];
+        rxMat{ff} = [sourceID pQueue];
         
     else % We read more than 3 bytes + the sourceID, so this is a full matrix line
         
-        % Delete heading zeros
-        dataRead_bin( 1 : end-(SOURCEID_FLD.BITS+PQUEUE_FLD.BITS+PCKSIZE_FLD.BITS+ORIGSOURCE_FLD.BITS+PCKIND_FLD.BITS+HISTORYVEC_FLD.BITS) ) = [];
-        % Extract remaining parameters
-        sourceID = bin2dec( dataRead_bin( SOURCEID_FLD.OFFSET + (1:SOURCEID_FLD.BITS) ) );
-        
         % Prepare output matrix
-        rxMat = zeros(3 , 11);
+        rxMat{ff} = zeros(3 , 11);
         
         % Extract remaining parameters
         pQueue      = bin2dec( dataRead_bin( PQUEUE_FLD.OFFSET + (1:PQUEUE_FLD.BITS) ) );
@@ -88,8 +87,9 @@ for ff = 1 : length( rxFiles )
         historyVec_tmp = repmat( ' ' , 1 , HISTORYVEC_FLD.BITS*2-1 );
         historyVec_tmp(1:2:end) = dataRead_bin( HISTORYVEC_FLD.OFFSET + (1:HISTORYVEC_FLD.BITS) );
         historyVec = str2num( historyVec_tmp );
+        historyVec(1:HISTORYVEC_FLD.BITS-6) = []; 
         
-        rxMat( str2num(fileTag) , : ) = [sourceID pQueue pckSize origSource pckInd historyVec] ;
+        rxMat{ff}( str2num(fileTag) , : ) = [sourceID pQueue pckSize origSource pckInd historyVec] ;
         
     end
 end

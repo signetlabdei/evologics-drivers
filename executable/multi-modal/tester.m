@@ -5,22 +5,21 @@ clear
 
 global  SOURCEID_FLD  PQUEUE_FLD  PCKSIZE_FLD  ORIGSOURCE_FLD  PCKIND_FLD  HISTORYVEC_FLD  SINGLEENTRY_FLD
 
-SOURCEID_FLD    = struct( 'BITS',05 , 'OFFSET',0 );
-PQUEUE_FLD      = struct( 'BITS',20 , 'OFFSET',SOURCEID_FLD.OFFSET+SOURCEID_FLD.BITS );
-PCKSIZE_FLD     = struct( 'BITS',14 , 'OFFSET',PQUEUE_FLD.OFFSET+PQUEUE_FLD.BITS );
-ORIGSOURCE_FLD  = struct( 'BITS',03 , 'OFFSET',PCKSIZE_FLD.OFFSET+PCKSIZE_FLD.BITS );
-PCKIND_FLD      = struct( 'BITS',09 , 'OFFSET',ORIGSOURCE_FLD.OFFSET+ORIGSOURCE_FLD.BITS );
-HISTORYVEC_FLD  = struct( 'BITS',06 , 'OFFSET',PCKIND_FLD.OFFSET+PCKIND_FLD.BITS );
-SINGLEENTRY_FLD = struct( 'BITS',20 , 'OFFSET',SOURCEID_FLD.OFFSET+SOURCEID_FLD.BITS );
+% SOURCEID_FLD    = struct( 'BITS',05 , 'OFFSET',0 );
+% PQUEUE_FLD      = struct( 'BITS',20 , 'OFFSET',SOURCEID_FLD.OFFSET+SOURCEID_FLD.BITS );
+% PCKSIZE_FLD     = struct( 'BITS',14 , 'OFFSET',PQUEUE_FLD.OFFSET+PQUEUE_FLD.BITS );
+% ORIGSOURCE_FLD  = struct( 'BITS',03 , 'OFFSET',PCKSIZE_FLD.OFFSET+PCKSIZE_FLD.BITS );
+% PCKIND_FLD      = struct( 'BITS',09 , 'OFFSET',ORIGSOURCE_FLD.OFFSET+ORIGSOURCE_FLD.BITS );
+% HISTORYVEC_FLD  = struct( 'BITS',06 , 'OFFSET',PCKIND_FLD.OFFSET+PCKIND_FLD.BITS );
+% SINGLEENTRY_FLD = struct( 'BITS',20 , 'OFFSET',SOURCEID_FLD.OFFSET+SOURCEID_FLD.BITS );
 
 %%% UNCOMMENT if you want an integer number of bytes for each field
-% SOURCEID_FLD    = struct( 'BITS',08 , 'OFFSET',0 );
-% PQUEUE_FLD      = struct( 'BITS',24 , 'OFFSET',SOURCEID_FLD.OFFSET+SOURCEID_FLD.BITS );
-% PCKSIZE_FLD     = struct( 'BITS',16 , 'OFFSET',PQUEUE_FLD.OFFSET+PQUEUE_FLD.BITS );
-% ORIGSOURCE_FLD  = struct( 'BITS',08 , 'OFFSET',PCKSIZE_FLD.OFFSET+PCKSIZE_FLD.BITS );
-% PCKIND_FLD      = struct( 'BITS',16 , 'OFFSET',ORIGSOURCE_FLD.OFFSET+ORIGSOURCE_FLD.BITS );
-% HISTORYVEC_FLD  = struct( 'BITS',08 , 'OFFSET',PCKIND_FLD.OFFSET+PCKIND_FLD.BITS );
-% SINGLEENTRY_FLD = struct( 'BITS',24 , 'OFFSET',SOURCEID_FLD.OFFSET+SOURCEID_FLD.BITS );
+PQUEUE_FLD      = struct( 'BITS',24 , 'OFFSET',0 );
+PCKSIZE_FLD     = struct( 'BITS',16 , 'OFFSET',PQUEUE_FLD.OFFSET+PQUEUE_FLD.BITS );
+ORIGSOURCE_FLD  = struct( 'BITS',08 , 'OFFSET',PCKSIZE_FLD.OFFSET+PCKSIZE_FLD.BITS );
+PCKIND_FLD      = struct( 'BITS',16 , 'OFFSET',ORIGSOURCE_FLD.OFFSET+ORIGSOURCE_FLD.BITS );
+HISTORYVEC_FLD  = struct( 'BITS',08 , 'OFFSET',PCKIND_FLD.OFFSET+PCKIND_FLD.BITS );
+SINGLEENTRY_FLD = struct( 'BITS',24 , 'OFFSET',0 );
 
 %% Test transmission to MAC for a full matrix entry
 
@@ -52,6 +51,23 @@ formFiletoRecv( source , phynum , [pQueue,0,0] );
 rxMat = RecvFromMac()
 
 
+%% Test reception from PHY where there is only one pQueue in the file and MULTIPLE files
+source1 = 2;
+phynum1 = 1;
+pQueue1 = 143950;
+
+source2 = 5;
+phynum2 = 3;
+pQueue2 = 333333;
+
+formFiletoRecv( source1 , phynum1 , [pQueue1,0,0] );
+formFiletoRecv( source2 , phynum2 , [0,0,pQueue2] );
+
+
+
+rxMat = RecvFromMac()
+
+
 %% Test reception from PHY where there is a full matrix line entry in the file
 
 source = 1;
@@ -66,11 +82,42 @@ formFiletoRecv( source , phynum , M3 );
 rxMat = RecvFromMac()
 
 
+%% Test reception from PHY where there is a full matrix line entry in the file and multiple files
+
+source1 = 1;
+phynum1 = 3;
+M1 = [  0    0  0  0 0 0 0 0 0 0 ;
+        0    0  0  0 0 0 0 0 0 0 ;
+       11  222  6 33 1 1 1 0 0 0   ] ;
+
+source2 = 6;
+phynum2 = 2;
+M2 = [  0    0  0  0 0 0 0 0 0 0 ;
+       25 1540  4 35 0 0 0 1 0 1 ;
+        0    0  0  0 0 0 0 0 0 0   ] ;
+
+formFiletoRecv( source1 , phynum1 , M1 );
+formFiletoRecv( source2 , phynum2 , M2 );
+
+rxMat = RecvFromMac()
 
 
+%% Test reception from PHY where there are one file with a full matrix entry and another with a single entry
 
+source1 = 1;
+phynum1 = 3;
+M1 = [  0    0  0  0 0 0 0 0 0 0 ;
+        0    0  0  0 0 0 0 0 0 0 ;
+       11  222  6 33 1 1 1 0 0 0   ] ;
 
+source2 = 5;
+phynum2 = 1;
+pQueue2 = 333333;
 
+formFiletoRecv( source1 , phynum1 , M1 );
+formFiletoRecv( source2 , phynum2 , [pQueue2,0,0] );
+
+rxMat = RecvFromMac()
 
 
 
