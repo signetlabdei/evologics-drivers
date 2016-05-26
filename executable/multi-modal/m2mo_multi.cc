@@ -135,6 +135,7 @@ int main(int argc, char* argv[]) {
   std::map<int,MdriverS2C_EvoLogics*> pmDriver;
   pmDriver[1] = connectModem(ip1, port1, ID, set_id, "tx_socket1.log");
   pmDriver[2] = connectModem(ip2, port2, ID, set_id, "tx_socket2.log");
+  std::map<int,int> phy_pending_msg;
 	usleep(400000);
 	cout << "ID " << ID << " socket: " << ip1 <<":" << port1 << endl;
 	cout << "ID " << ID << " socket: " << ip2 <<":" << port2 << endl;
@@ -173,24 +174,32 @@ int main(int argc, char* argv[]) {
 				usleep (min_sleeping_time); //sleep(); if sec.
 				//CHECK IF hdr->tec_id is in my phys
 				if(pmDriver.find(hdr->tec_id)!=pmDriver.end()) {
-					k_o ? transmitBurst(pmDriver[hdr->tec_id],hdr->des_id, hdr->data) :
-					    	transmit(pmDriver[hdr->tec_id],hdr->des_id, hdr->data, ACK);
-					//TODO: CHECK IF msg_id > 0 and if the dest_id is unicast; In that case, store msg_id for ack.
+					if(hdr->des_id > 0){
+						k_o ? transmitBurst(pmDriver[hdr->tec_id],hdr->des_id, hdr->data) :
+						    	transmit(pmDriver[hdr->tec_id],hdr->des_id, hdr->data, ACK);
+						phy_pending_msg[hdr->tec_id] = hdr->msg_id;
+					}
+					else{ //BROADCAST MESSAGE --> NO ACK
+						transmit(pmDriver[hdr->tec_id],BROADCAST_ADD, hdr->data, NOACK);
+					}
 				}
 			} 
 
 
+/*			//TODO: CHECK ACK STATUS 
 			while(pmDriver[1]->getAckStatus() == ACK_PENDING) {
+				if()
 				usleep(500000);
 				//cout <<"waiting ack";
 				pmDriver[1]->updateStatus();
 			}
+
 			pmDriver[1]->getAckStatus() == ACK_CONFIRMED ? cout << "ACK confirmed!" << endl :  cout << "FAILED!" << endl;
 			//cout << "Inviato " << ID << " to " << RECEIVER << " " << complete_message << endl;
 			transm_file_stats << "[" << getEpoch() << "]:: Send from " << ID << endl;
 	    // The last packet of the burst is sent in ack mode
 			usleep(min_sleeping_time);    
-			std::cout << getEpoch() << " Sent " << ID  << endl;
+			std::cout << getEpoch() << " Sent " << ID  << endl;*/
 		}
 		else {
 			//loop over all the PHY in the following way
@@ -199,6 +208,15 @@ int main(int argc, char* argv[]) {
         driver_iter++) {
 				modemStatus_old = driver_iter->second->getStatus();
 				modemStatus = driver_iter->second->updateStatus();
+				//TODO: CHECK ACK STATUS 
+				if(driver_iter->second->getAckStatus() != ACK_PENDING && 
+					phy_pending_msg.find(driver_iter->first) != phy_pending_msg.end()) {
+					driver_iter->second->getAckStatus() == ACK_CONFIRMED ? 
+						cout << "ACK confirmed for packet!" << phy_pending_msg[driver_iter->first] << endl :
+						cout << "FAILED!" << phy_pending_msg[driver_iter->first] << endl;
+					phy_pending_msg.erase(driver_iter->first);
+				}
+
 				//check if there is something received and write it in the log
 				if (modemStatus == MODEM_IDLE_RX && modemStatus_old == MODEM_RX) {
 					std::string rx_msg = driver_iter->second->getRxPayload();
