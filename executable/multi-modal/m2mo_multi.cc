@@ -95,7 +95,7 @@ void printToFile(int src, int tec_id, std::string rx_msg, char * folder) {
 	/*std::cout << log_name << endl;*/
 	std::ofstream out_file_stats;
 	out_file_stats.open(log_name, std::ofstream::out); //erase and create a new file
-	out_file_stats << rx_msg << std::endl;
+	out_file_stats << src << "," << rx_msg << std::endl;
 	out_file_stats.close();
 	sprintf(log_name, "%s%s%d%s%d%s", folder, check_rx_log_, tec_id, "_", src, extension_);
 	out_file_stats.open(log_name, std::ofstream::out); //erase and create a new file
