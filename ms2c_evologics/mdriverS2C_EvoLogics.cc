@@ -168,7 +168,6 @@ modem_state_t MdriverS2C_EvoLogics::updateStatus() {
         rx_msg = mConnector.readFromModem();
 
         if (rx_msg != "") {
-
             std::string pr_msg;
             std::string parser("\r\n");
             size_t p_offset = 0;

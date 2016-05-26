@@ -47,7 +47,8 @@ static char const* tx_log_ = "/FromMac2Phy.txt";
 
 static char const* check_rx_log_ = "/PhyRx";
 //static char const* rx_log_ = "'PhyRx*.txt";
-static char const* rx_log_ = "/FromPhy2Mac";
+static char const* rx_log_header = "/FromPhy";
+static char const* rx_log_tail = "toMac";
 static char const* extension_ = ".txt";
 
 static char const token_separator_ = ',';

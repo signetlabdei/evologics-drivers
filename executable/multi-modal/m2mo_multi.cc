@@ -91,12 +91,13 @@ msg2send_str* parseMessage(std::string message2parse) {
 //DONE: print in the received log file and create the flag file for the reception
 void printToFile(int src, int tec_id, std::string rx_msg, char * folder) { 
 	char log_name [100];
-	sprintf(log_name, "%s%s%d%s", folder, rx_log_, tec_id, src, extension_);
+	sprintf(log_name, "%s%s%d%s%d%s%s", folder, rx_log_header, tec_id, "_", src, rx_log_tail, extension_);
+	/*std::cout << log_name << endl;*/
 	std::ofstream out_file_stats;
 	out_file_stats.open(log_name, std::ofstream::out); //erase and create a new file
 	out_file_stats << rx_msg << std::endl;
 	out_file_stats.close();
-	sprintf(log_name, "%s%s%d%s", folder, check_rx_log_, tec_id, src, extension_);
+	sprintf(log_name, "%s%s%d%s%d%s", folder, check_rx_log_, tec_id, "_", src, extension_);
 	out_file_stats.open(log_name, std::ofstream::out); //erase and create a new file
 	out_file_stats.close();
 }
@@ -138,10 +139,19 @@ int main(int argc, char* argv[]) {
 	cout << "ID " << ID << " socket: " << ip1 <<":" << port1 << endl;
 	cout << "ID " << ID << " socket: " << ip2 <<":" << port2 << endl;
 	sleep(1);
-  // START THE APPLICATION
+  
+  // RESET THE MODEM AFTER THE INITIALIZATION
 
-  int modemStatus_old = pmDriver[1]->getStatus();
-	int modemStatus = pmDriver[1]->updateStatus();
+  int modemStatus_old;
+	int modemStatus;
+	for(std::map<int,MdriverS2C_EvoLogics*>::iterator driver_iter = pmDriver.begin();
+    driver_iter != pmDriver.end();
+    driver_iter++) {
+		modemStatus_old = driver_iter->second->getStatus();
+		modemStatus = driver_iter->second->updateStatus();
+		driver_iter-> second -> resetModemStatus();
+	}
+  // START THE APPLICATION
 	//main cicle
 	std::queue<std::string> *messages_buffer;
 	std::string message2parse = "";
@@ -151,6 +161,7 @@ int main(int argc, char* argv[]) {
 		bool tx_flag = checkTxLog(dir_label);
 		//cout << "flag = " << tx_flag << endl;
 		if (tx_flag) {
+			cout << "something to tx" << endl;
 			//retreive sending time and data to send
 			messages_buffer = readMessages(dir_label);
 			while (!messages_buffer->empty()) {
@@ -160,7 +171,7 @@ int main(int argc, char* argv[]) {
 				msg2send_str* hdr = parseMessage(message2parse);
 
 				usleep (min_sleeping_time); //sleep(); if sec.
-				//TODO:CHECK IF hdr->tec_id is in my phys
+				//CHECK IF hdr->tec_id is in my phys
 				if(pmDriver.find(hdr->tec_id)!=pmDriver.end()) {
 					k_o ? transmitBurst(pmDriver[hdr->tec_id],hdr->des_id, hdr->data) :
 					    	transmit(pmDriver[hdr->tec_id],hdr->des_id, hdr->data, ACK);
@@ -182,24 +193,24 @@ int main(int argc, char* argv[]) {
 			std::cout << getEpoch() << " Sent " << ID  << endl;
 		}
 		else {
-			//TODO: loop over all the PHY in the following way
+			//loop over all the PHY in the following way
 			for(std::map<int,MdriverS2C_EvoLogics*>::iterator driver_iter = pmDriver.begin();
         driver_iter != pmDriver.end();
         driver_iter++) {
-			
-				//check if there is something received and write it in the log
-				if (modemStatus == MODEM_IDLE_RX && modemStatus_old == MODEM_RX) {
-					std::string rx_msg = pmDriver[1]->getRxPayload();
-					int src = driver_iter->second->getSrc();
-					printToFile(src,1,rx_msg,dir_label);
-					cout << getEpoch() << " Rx Message " << ID << " " << rx_msg << endl;
-					driver_iter-> second -> resetModemStatus();
-				}
 				modemStatus_old = driver_iter->second->getStatus();
 				modemStatus = driver_iter->second->updateStatus();
+				//check if there is something received and write it in the log
+				if (modemStatus == MODEM_IDLE_RX && modemStatus_old == MODEM_RX) {
+					std::string rx_msg = driver_iter->second->getRxPayload();
+					int src = driver_iter->second->getSrc();
+					printToFile(src,1,rx_msg,dir_label);
+					cout << getEpoch() << " Rx Message " << ID << " From " << src << " " << rx_msg << endl;
+					driver_iter-> second -> resetModemStatus();
+				}
 			}
 		}
 		usleep(min_sleeping_time);
+		usleep(1000000);
 
 /*		transm_file_stats << "[" << getEpoch() << "]:: Send from " << ID << " to " << RECEIVER 
 			       << " " << complete_message << "packet_counter = " << packet_counter << endl;
