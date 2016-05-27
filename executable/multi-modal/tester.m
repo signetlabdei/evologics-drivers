@@ -48,7 +48,7 @@ pQueue = 143950;
 
 formFiletoRecv( source , phynum , [pQueue,0,0] );
 
-rxMat = RecvFromMac()
+rxMat = RecvFromPhy()
 
 
 %% Test reception from PHY where there is only one pQueue in the file and MULTIPLE files
@@ -63,9 +63,7 @@ pQueue2 = 333333;
 formFiletoRecv( source1 , phynum1 , [pQueue1,0,0] );
 formFiletoRecv( source2 , phynum2 , [0,0,pQueue2] );
 
-
-
-rxMat = RecvFromMac()
+rxMat = RecvFromPhy()
 
 
 %% Test reception from PHY where there is a full matrix line entry in the file
@@ -79,7 +77,7 @@ M3 = [  0    0  0  0 0 0 0 0 0 0 ;
 
 formFiletoRecv( source , phynum , M3 );
 
-rxMat = RecvFromMac()
+rxMat = RecvFromPhy()
 
 
 %% Test reception from PHY where there is a full matrix line entry in the file and multiple files
@@ -99,7 +97,7 @@ M2 = [  0    0  0  0 0 0 0 0 0 0 ;
 formFiletoRecv( source1 , phynum1 , M1 );
 formFiletoRecv( source2 , phynum2 , M2 );
 
-rxMat = RecvFromMac()
+rxMat = RecvFromPhy()
 
 
 %% Test reception from PHY where there are one file with a full matrix entry and another with a single entry
@@ -117,7 +115,7 @@ pQueue2 = 333333;
 formFiletoRecv( source1 , phynum1 , M1 );
 formFiletoRecv( source2 , phynum2 , [pQueue2,0,0] );
 
-rxMat = RecvFromMac()
+rxMat = RecvFromPhy()
 
 
 

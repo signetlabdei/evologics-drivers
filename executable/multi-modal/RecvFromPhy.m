@@ -71,7 +71,8 @@ for ff = 1 : length( rxFiles )
         % Extract source ID and single pQueue entry
         pQueue = bin2dec( dataRead_bin( SINGLEENTRY_FLD.OFFSET + (1:SINGLEENTRY_FLD.BITS) ) );
         
-        rxMat{ff} = [sourceID pQueue];
+        rxMat{ff} = zeros(3,2);
+        rxMat{ff}( str2num(fileTag) , : ) = [sourceID pQueue];
         
     else % We read more than 3 bytes + the sourceID, so this is a full matrix line
         
