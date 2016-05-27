@@ -37,7 +37,6 @@
 #include "utilities.h"
 #include "m2mo_multi.h"
 #include <queue>
-#include <map>
 
 bool checkTxLog(char * folder) {
 	ifstream input_file_;
@@ -91,13 +90,13 @@ msg2send_str* parseMessage(std::string message2parse) {
 //DONE: print in the received log file and create the flag file for the reception
 void printToRxFile(int src, int tec_id, int counter, std::string rx_msg, char * folder) { 
 	char log_name [100];
-	sprintf(log_name, "%s%s%d%d%s%s", folder, rx_log_header, tec_id, counter, rx_log_tail, extension_);
+	sprintf(log_name, "%s%s%d%s%d%s%s", folder, rx_log_header, tec_id, "_", counter, rx_log_tail, extension_);
 	/*std::cout << log_name << endl;*/
 	std::ofstream rx_file_report;
 	rx_file_report.open(log_name, std::ofstream::out); //erase and create a new file
 	rx_file_report << src << "," << rx_msg << std::endl;
 	rx_file_report.close();
-	sprintf(log_name, "%s%s%d%d%s", folder, check_rx_log_, tec_id, counter, extension_);
+	sprintf(log_name, "%s%s%d%s%d%s", folder, check_rx_log_, tec_id, "_", counter, extension_);
 	rx_file_report.open(log_name, std::ofstream::out); //erase and create a new file
 	rx_file_report.close();
 }
@@ -119,49 +118,45 @@ void reportAck(int msg_id, int tec_id, bool confirmed, char * folder) {
 int main(int argc, char* argv[]) {
 	// CHECK parameters
   cout << "Ciao" << endl;
-	if (argc < 7) {
+	if (argc < 4) {
 		cerr << "Usage:" <<endl;
-    cerr << "./mycc ID ip1 port1 ip2 port2 keep-online" << endl;
+    cerr << "./mycc ID keep-online ip1 <ip2> <ip3> " << endl;
 		return -1;
 	}
   // INITIALIZATION
   int ID = atoi(argv[1]);
+	bool k_o = bool(atoi(argv[2]));
 	char* dir_label = ".";
-	std::string ip1 = argv[2];
-	std::string port1 = argv[3];
-	std::string ip2 = argv[4];
-	std::string port2 = argv[5];
-	bool k_o = bool(atoi(argv[6]));
+	std::string port = "9200";
 	bool set_id = true;
-	
-  // SET LOG FILES
-	std::stringstream transm_file;
-	std::stringstream delay_file;
-	std::ofstream transm_file_stats(0);
-	std::ofstream delay_file_stats(0);
-        transm_file << "./sender_log.out";
-
   // CONNECT to the modem
-  std::map<int,MdriverS2C_EvoLogics*> pmDriver;
-  pmDriver[1] = connectModem(ip1, port1, ID, set_id, "tx_socket1.log");
-  pmDriver[2] = connectModem(ip2, port2, ID, set_id, "tx_socket2.log");
+  /*std::map<int,MdriverS2C_EvoLogics*> pmDriver;*/
+	DriversMap pmDriver;
+	for (int i = 3; i < argc; i++) {
+		pmDriver[i-2] = connectModem(argv[i], port, ID, set_id, argv[i]);
+		cout << getEpoch() << "_ID:" << ID << "_socket:" << argv[i] <<":" << port << endl;
+	}
   std::map<int,int> phy_pending_msg;
-	usleep(400000);
-	cout << getEpoch() << "ID " << ID << " socket: " << ip1 <<":" << port1 << endl;
-	cout << getEpoch() << "ID " << ID << " socket: " << ip2 <<":" << port2 << endl;
 	sleep(1);
   
   // RESET THE MODEM AFTER THE INITIALIZATION
-
   int modemStatus_old;
 	int modemStatus;
-	for(std::map<int,MdriverS2C_EvoLogics*>::iterator driver_iter = pmDriver.begin();
+	for(DriversMap::iterator driver_iter = pmDriver.begin();
     driver_iter != pmDriver.end();
     driver_iter++) {
 		modemStatus_old = driver_iter->second->getStatus();
 		modemStatus = driver_iter->second->updateStatus();
 		driver_iter-> second -> resetModemStatus();
 	}
+
+	// SET LOG FILES
+	std::ofstream transm_file_stats(0);
+	std::ofstream recv_file_stats(0);
+	transm_file_stats.open("./sender_log.out", std::ofstream::out | std::ofstream::app); //append or and create a new file
+	recv_file_stats.open("./recv_log.out", std::ofstream::out | std::ofstream::app); //append or and create a new file
+  transm_file_stats << "./sender_log.out" << endl;;
+  recv_file_stats << "./recv_log.out" << endl;
   // START THE APPLICATION
 	//main cicle
 	std::queue<std::string> *messages_buffer;
@@ -170,10 +165,10 @@ int main(int argc, char* argv[]) {
 
 	while (true) {
 		bool tx_flag = checkTxLog(dir_label);
-		//cout << "flag = " << tx_flag << endl;
+
 		if (tx_flag) {
 			cout << "something to tx" << endl;
-			//retreive sending time and data to send
+			//retreive sending data to send
 			messages_buffer = readMessages(dir_label);
 			while (!messages_buffer->empty()) {
 				message2parse = messages_buffer->front();
@@ -181,20 +176,24 @@ int main(int argc, char* argv[]) {
 				cout << getEpoch() << "::message2parse = " << message2parse << endl;
 				msg2send_str* hdr = parseMessage(message2parse);
 				/*cout << "msg_id " << hdr->msg_id << " des_id " << hdr->des_id << " tec_id " << hdr->tec_id << endl;*/
-
-				usleep (min_sleeping_time); //sleep(); if sec.
+/*
+				usleep (min_sleeping_time); //sleep(); if sec.*/
 				//CHECK IF hdr->tec_id is in my phys
 				if(hdr->des_id > 0 && hdr->tec_id > 0 && hdr->msg_id > 0){
 					if(pmDriver.find(hdr->tec_id)!=pmDriver.end()) {
-						cout << getEpoch() << "UNICAST_Tx::dest=" << hdr->des_id << "::tec_id:" << hdr->tec_id << endl;
+						cout << getEpoch() << "_UNICAST_Tx_dest:" << hdr->des_id << "_tec_id:" 
+							<< hdr->tec_id << endl;
+						transm_file_stats << getEpoch() << "_UNICAST_Tx_dest:" << hdr->des_id 
+							<< "::tec_id:" << hdr->tec_id << endl;
 						k_o ? transmitBurst(pmDriver[hdr->tec_id],hdr->des_id, hdr->data) :
 						    	transmit(pmDriver[hdr->tec_id],hdr->des_id, hdr->data, ACK);
 						phy_pending_msg[hdr->tec_id] = hdr->msg_id;
 					}
 				}
 				else{ //BROADCAST MESSAGE via all tec--> NO ACK
-					/*cout << "case BROADCAST dest = " << hdr->des_id  << endl;*/
-					for(std::map<int,MdriverS2C_EvoLogics*>::iterator driver_iter = pmDriver.begin();
+					cout << getEpoch() << "_BROADCAST_dest:" << hdr->des_id << endl;
+					transm_file_stats << getEpoch() << "_BROADCAST_dest:" << hdr->des_id << endl;
+					for(DriversMap::iterator driver_iter = pmDriver.begin();
 		        driver_iter != pmDriver.end();
 		        driver_iter++) 
 					{
@@ -205,7 +204,7 @@ int main(int argc, char* argv[]) {
 		}
 		else {
 			//loop over all the PHY in the following way
-			for(std::map<int,MdriverS2C_EvoLogics*>::iterator driver_iter = pmDriver.begin();
+			for(DriversMap::iterator driver_iter = pmDriver.begin();
         driver_iter != pmDriver.end();
         driver_iter++) {
 				modemStatus_old = driver_iter->second->getStatus();
@@ -216,8 +215,12 @@ int main(int argc, char* argv[]) {
 					bool ack_status = driver_iter->second->getAckStatus() == ACK_CONFIRMED;
 					reportAck(phy_pending_msg[driver_iter->first], driver_iter->first, 
 						ack_status, dir_label);
-					cout << getEpoch() << "::ACK confirmed = " << ack_status << " for packet " 
-					     << phy_pending_msg[driver_iter->first] << endl;
+					cout << getEpoch() << "_ACK_confirmed:" << ack_status << "_from_PHY:" 
+							 << driver_iter->first << "_for_packet:" 
+							 << phy_pending_msg[driver_iter->first] << endl;
+					transm_file_stats << getEpoch() << getEpoch() << "_ACK confirmed:" 
+							 << ack_status << "_from_PHY:" << driver_iter->first << "_for_packet:" 
+							 << phy_pending_msg[driver_iter->first] << endl;
 					phy_pending_msg.erase(driver_iter->first);
 				}
 
@@ -226,8 +229,12 @@ int main(int argc, char* argv[]) {
 					std::string rx_msg = driver_iter->second->getRxPayload();
 					int src = driver_iter->second->getSrc();
 					printToRxFile(src, driver_iter->first, rx_counter++, rx_msg, dir_label);
-					cout << getEpoch() << "::Rx Message[" << ID << "]:" << rx_counter << ":From:" 
-							 << src << "data:" << rx_msg << endl;
+					cout << getEpoch() << "_Rx Message[" << ID << "]:" << rx_counter 
+							 << "_From:" << src << "_via_PHY:"<< driver_iter->first << "_data:"
+							 << rx_msg << endl;
+					recv_file_stats << getEpoch() << "_Rx Message[" << ID << "]:" << rx_counter 
+							 << "_From:" << src << "_via_PHY:"<< driver_iter->first << "_data:" 
+							 << rx_msg << endl;
 					driver_iter-> second -> resetModemStatus();
 				}
 			}

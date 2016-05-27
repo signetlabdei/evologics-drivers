@@ -35,12 +35,16 @@
  *
  */
 
+#include <map>
+
 struct msg2send_str {
 	int msg_id;
 	int des_id;
 	int tec_id;
 	string data;
 };
+
+typedef std::map<int,MdriverS2C_EvoLogics*> DriversMap;
 
 static char const* check_tx_log_ = "/MacTx.txt";
 static char const* tx_log_ = "/FromMac2Phy.txt";
