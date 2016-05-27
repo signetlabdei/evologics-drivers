@@ -50,6 +50,8 @@ end
 
 for ff = 1 : length( rxFiles )
     fileTag = rxFiles(ff).name( length(fileHeadTag1)+1 : strfind( rxFiles(ff).name , fileTailTag1 )-1 );
+    fileTagTech = textscan( fileTag , '%s' , 'Delimiter' , '_' );
+    fileTagTech = fileTagTech{1}{1};
     
     readFileName = [outFileDir '/' fileHeadTag2 fileTag fileTailTag2];
     fout = fopen( readFileName , 'r' );
@@ -57,6 +59,7 @@ for ff = 1 : length( rxFiles )
     fclose(fout);
     delete( [outFileDir '/' fileHeadTag1 fileTag fileTailTag1] );
     delete( [outFileDir '/' fileHeadTag2 fileTag fileTailTag2] );
+    
     
     % Process read string to find sourceID and hex data
     textRead_scan = textscan( textRead , '%s' , 'Delimiter' , ',' );
@@ -72,7 +75,7 @@ for ff = 1 : length( rxFiles )
         pQueue = bin2dec( dataRead_bin( SINGLEENTRY_FLD.OFFSET + (1:SINGLEENTRY_FLD.BITS) ) );
         
         rxMat{ff} = zeros(3,2);
-        rxMat{ff}( str2num(fileTag) , : ) = [sourceID pQueue];
+        rxMat{ff}( str2num(fileTagTech) , : ) = [sourceID pQueue];
         
     else % We read more than 3 bytes + the sourceID, so this is a full matrix line
         
@@ -90,7 +93,7 @@ for ff = 1 : length( rxFiles )
         historyVec = str2num( historyVec_tmp );
         historyVec(1:HISTORYVEC_FLD.BITS-6) = []; 
         
-        rxMat{ff}( str2num(fileTag) , : ) = [sourceID pQueue pckSize origSource pckInd historyVec] ;
+        rxMat{ff}( str2num(fileTagTech) , : ) = [sourceID pQueue pckSize origSource pckInd historyVec] ;
         
     end
 end

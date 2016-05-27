@@ -29,7 +29,7 @@
 %   - an element which should be represented by 20 bits
 
 
-function formFiletoRecv( source, tech , packet2sendMat ) 
+function formFiletoRecv( source, tech , pktnum , packet2sendMat ) 
 
 global  SOURCEID_FLD  PQUEUE_FLD  PCKSIZE_FLD  ORIGSOURCE_FLD  PCKIND_FLD  HISTORYVEC_FLD  SINGLEENTRY_FLD
 
@@ -56,7 +56,7 @@ if sum(size(packet2sendMat)==[3 1])==2 || sum(size(packet2sendMat)==[1 3])==2  %
     singleEntry = packet2sendMat( tech );
     dataOutHex = bin2hex( dec2bin( singleEntry,SINGLEENTRY_FLD.BITS ) );
     
-    fout = fopen( [outFileDir '/' fileHeadTag2 num2str(tech) fileTailTag2 ] , 'w' );
+    fout = fopen( [outFileDir '/' fileHeadTag2 num2str(tech) '_' num2str(pktnum) fileTailTag2 ] , 'w' );
     fprintf( fout , '%d,%s\n' , source,dataOutHex );
     fclose( fout );
     
@@ -75,13 +75,13 @@ else % The size of packet2sendMat is expected to be [ 3 4+N ]
     
     dataOutHex = bin2hex( dataOutBin );
     
-    fout = fopen( [outFileDir '/' fileHeadTag2 num2str(tech) fileTailTag2 ] , 'w' );
+    fout = fopen( [outFileDir '/' fileHeadTag2 num2str(tech) '_' num2str(pktnum) fileTailTag2 ] , 'w' );
     fprintf( fout , '%d,%s\n' , source , dataOutHex );
     fclose( fout );
     
 end
 
-fready = fopen( [outFileDir '/' fileHeadTag1 num2str(tech) fileTailTag1] , 'w');
+fready = fopen( [outFileDir '/' fileHeadTag1 num2str(tech) '_' num2str(pktnum) fileTailTag1] , 'w');
 fclose( fready );
 
 
