@@ -13,7 +13,7 @@
 %     The format of rxMat depends on the file read from input.
 
 
-function rxMat = RecvFromMac()
+function rxMat = RecvFromPhy()
 
 global  SOURCEID_FLD  PQUEUE_FLD  PCKSIZE_FLD  ORIGSOURCE_FLD  PCKIND_FLD  HISTORYVEC_FLD  SINGLEENTRY_FLD
 
