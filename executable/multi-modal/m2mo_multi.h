@@ -49,6 +49,8 @@ static char const* check_rx_log_ = "/PhyRx";
 //static char const* rx_log_ = "'PhyRx*.txt";
 static char const* rx_log_header = "/FromPhy";
 static char const* rx_log_tail = "toMac";
+
+static char const* ack_log_header = "/ack_msg_";
 static char const* extension_ = ".txt";
 
 static char const token_separator_ = ',';
@@ -61,4 +63,6 @@ std::queue<std::string>* readMessages(char * folder);
 
 msg2send_str* parseMessage(std::string message2parse);
 
-void printToFile(int src, int tec_id, std::string rx_msg, char * folder);
+void printToRxFile(int src, int tec_id, std::string rx_msg, char * folder);
+
+void reportAck(int msg_id, int tec_id, bool confirmed, char * folder);

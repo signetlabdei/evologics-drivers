@@ -89,18 +89,28 @@ msg2send_str* parseMessage(std::string message2parse) {
 }
 
 //DONE: print in the received log file and create the flag file for the reception
-void printToFile(int src, int tec_id, std::string rx_msg, char * folder) { 
+void printToRxFile(int src, int tec_id, int counter, std::string rx_msg, char * folder) { 
 	char log_name [100];
-	sprintf(log_name, "%s%s%d%s%d%s%s", folder, rx_log_header, tec_id, "_", src, rx_log_tail, extension_);
+	sprintf(log_name, "%s%s%d%d%s%s", folder, rx_log_header, tec_id, counter, rx_log_tail, extension_);
 	/*std::cout << log_name << endl;*/
-	std::ofstream out_file_stats;
-	out_file_stats.open(log_name, std::ofstream::out); //erase and create a new file
-	out_file_stats << src << "," << rx_msg << std::endl;
-	out_file_stats.close();
-	sprintf(log_name, "%s%s%d%s%d%s", folder, check_rx_log_, tec_id, "_", src, extension_);
-	out_file_stats.open(log_name, std::ofstream::out); //erase and create a new file
-	out_file_stats.close();
+	std::ofstream rx_file_report;
+	rx_file_report.open(log_name, std::ofstream::out); //erase and create a new file
+	rx_file_report << src << "," << rx_msg << std::endl;
+	rx_file_report.close();
+	sprintf(log_name, "%s%s%d%d%s", folder, check_rx_log_, tec_id, counter, extension_);
+	rx_file_report.open(log_name, std::ofstream::out); //erase and create a new file
+	rx_file_report.close();
 }
+
+void reportAck(int msg_id, int tec_id, bool confirmed, char * folder) {
+	char ack_log_name [100];
+	sprintf(ack_log_name, "%s%s%d%s%d%s%d%s", folder, ack_log_header, msg_id, "_", tec_id, "_", 
+		(int) confirmed, extension_);
+	std::ofstream ack_file_report;
+	ack_file_report.open(ack_log_name, std::ofstream::out); //erase and create a new file
+	ack_file_report.close();
+}
+
 
 /**
  * Main: the transmitter
@@ -137,8 +147,8 @@ int main(int argc, char* argv[]) {
   pmDriver[2] = connectModem(ip2, port2, ID, set_id, "tx_socket2.log");
   std::map<int,int> phy_pending_msg;
 	usleep(400000);
-	cout << "ID " << ID << " socket: " << ip1 <<":" << port1 << endl;
-	cout << "ID " << ID << " socket: " << ip2 <<":" << port2 << endl;
+	cout << getEpoch() << "ID " << ID << " socket: " << ip1 <<":" << port1 << endl;
+	cout << getEpoch() << "ID " << ID << " socket: " << ip2 <<":" << port2 << endl;
 	sleep(1);
   
   // RESET THE MODEM AFTER THE INITIALIZATION
@@ -156,9 +166,9 @@ int main(int argc, char* argv[]) {
 	//main cicle
 	std::queue<std::string> *messages_buffer;
 	std::string message2parse = "";
+	int rx_counter = 0;
+
 	while (true) {
-
-
 		bool tx_flag = checkTxLog(dir_label);
 		//cout << "flag = " << tx_flag << endl;
 		if (tx_flag) {
@@ -168,38 +178,30 @@ int main(int argc, char* argv[]) {
 			while (!messages_buffer->empty()) {
 				message2parse = messages_buffer->front();
 				messages_buffer->pop();
-				cout << getEpoch() << " message2parse = " << message2parse << endl;
+				cout << getEpoch() << "::message2parse = " << message2parse << endl;
 				msg2send_str* hdr = parseMessage(message2parse);
+				/*cout << "msg_id " << hdr->msg_id << " des_id " << hdr->des_id << " tec_id " << hdr->tec_id << endl;*/
 
 				usleep (min_sleeping_time); //sleep(); if sec.
 				//CHECK IF hdr->tec_id is in my phys
-				if(pmDriver.find(hdr->tec_id)!=pmDriver.end()) {
-					if(hdr->des_id > 0){
+				if(hdr->des_id > 0 && hdr->tec_id > 0 && hdr->msg_id > 0){
+					if(pmDriver.find(hdr->tec_id)!=pmDriver.end()) {
+						cout << getEpoch() << "UNICAST_Tx::dest=" << hdr->des_id << "::tec_id:" << hdr->tec_id << endl;
 						k_o ? transmitBurst(pmDriver[hdr->tec_id],hdr->des_id, hdr->data) :
 						    	transmit(pmDriver[hdr->tec_id],hdr->des_id, hdr->data, ACK);
 						phy_pending_msg[hdr->tec_id] = hdr->msg_id;
 					}
-					else{ //BROADCAST MESSAGE --> NO ACK
-						transmit(pmDriver[hdr->tec_id],BROADCAST_ADD, hdr->data, NOACK);
+				}
+				else{ //BROADCAST MESSAGE via all tec--> NO ACK
+					/*cout << "case BROADCAST dest = " << hdr->des_id  << endl;*/
+					for(std::map<int,MdriverS2C_EvoLogics*>::iterator driver_iter = pmDriver.begin();
+		        driver_iter != pmDriver.end();
+		        driver_iter++) 
+					{
+						transmit(driver_iter->second,BROADCAST_ADD, hdr->data, NOACK);
 					}
 				}
 			} 
-
-
-/*			//TODO: CHECK ACK STATUS 
-			while(pmDriver[1]->getAckStatus() == ACK_PENDING) {
-				if()
-				usleep(500000);
-				//cout <<"waiting ack";
-				pmDriver[1]->updateStatus();
-			}
-
-			pmDriver[1]->getAckStatus() == ACK_CONFIRMED ? cout << "ACK confirmed!" << endl :  cout << "FAILED!" << endl;
-			//cout << "Inviato " << ID << " to " << RECEIVER << " " << complete_message << endl;
-			transm_file_stats << "[" << getEpoch() << "]:: Send from " << ID << endl;
-	    // The last packet of the burst is sent in ack mode
-			usleep(min_sleeping_time);    
-			std::cout << getEpoch() << " Sent " << ID  << endl;*/
 		}
 		else {
 			//loop over all the PHY in the following way
@@ -211,9 +213,11 @@ int main(int argc, char* argv[]) {
 				//TODO: CHECK ACK STATUS 
 				if(driver_iter->second->getAckStatus() != ACK_PENDING && 
 					phy_pending_msg.find(driver_iter->first) != phy_pending_msg.end()) {
-					driver_iter->second->getAckStatus() == ACK_CONFIRMED ? 
-						cout << "ACK confirmed for packet!" << phy_pending_msg[driver_iter->first] << endl :
-						cout << "FAILED!" << phy_pending_msg[driver_iter->first] << endl;
+					bool ack_status = driver_iter->second->getAckStatus() == ACK_CONFIRMED;
+					reportAck(phy_pending_msg[driver_iter->first], driver_iter->first, 
+						ack_status, dir_label);
+					cout << getEpoch() << "::ACK confirmed = " << ack_status << " for packet " 
+					     << phy_pending_msg[driver_iter->first] << endl;
 					phy_pending_msg.erase(driver_iter->first);
 				}
 
@@ -221,8 +225,9 @@ int main(int argc, char* argv[]) {
 				if (modemStatus == MODEM_IDLE_RX && modemStatus_old == MODEM_RX) {
 					std::string rx_msg = driver_iter->second->getRxPayload();
 					int src = driver_iter->second->getSrc();
-					printToFile(src,1,rx_msg,dir_label);
-					cout << getEpoch() << " Rx Message " << ID << " From " << src << " " << rx_msg << endl;
+					printToRxFile(src, driver_iter->first, rx_counter++, rx_msg, dir_label);
+					cout << getEpoch() << "::Rx Message[" << ID << "]:" << rx_counter << ":From:" 
+							 << src << "data:" << rx_msg << endl;
 					driver_iter-> second -> resetModemStatus();
 				}
 			}
