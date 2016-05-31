@@ -133,8 +133,11 @@ int main(int argc, char* argv[]) {
   /*std::map<int,MdriverS2C_EvoLogics*> pmDriver;*/
 	DriversMap pmDriver;
 	for (int i = 3; i < argc; i++) {
-		pmDriver[i-2] = connectModem(argv[i], port, ID, set_id, argv[i]);
-		cout << getEpoch() << "_ID:" << ID << "_socket:" << argv[i] <<":" << port << endl;
+		if (*argv[i] != '0') {
+			cout << getEpoch() << " " << sizeof(argv[i])/sizeof('0') << "_ID:" << ID << "_socket:" << argv[i] <<":" << port;
+			pmDriver[i-2] = connectModem(argv[i], port, ID, set_id, argv[i]);
+			cout << "connected" << endl;
+		}
 	}
   std::map<int,int> phy_pending_msg;
 	sleep(1);
@@ -240,7 +243,7 @@ int main(int argc, char* argv[]) {
 			}
 		}
 		usleep(min_sleeping_time);
-		usleep(1000000);
+		/*usleep(1000000);*/
 
 /*		transm_file_stats << "[" << getEpoch() << "]:: Send from " << ID << " to " << RECEIVER 
 			       << " " << complete_message << "packet_counter = " << packet_counter << endl;
