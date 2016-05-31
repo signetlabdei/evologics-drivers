@@ -65,7 +65,7 @@ pQueue2 = 333333;
 pktnum2 = 777;
 
 formFiletoRecv( source1 , phynum1 , pkntum1 , [pQueue1,0,0] );
-formFiletoRecv( source2 , phynum2 , pkntum2 , [0,0,pQueue2] );
+formFiletoRecv( source2 , phynum2 , pktnum2 , [0,0,pQueue2] );
 
 rxMat = RecvFromPhy()
 

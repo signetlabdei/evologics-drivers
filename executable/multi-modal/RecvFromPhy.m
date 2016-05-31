@@ -6,10 +6,9 @@
 %   - none (will check for PhyRx*.txt files)
 %
 % Output:
-%   - rxMat, which can be either of the following
-%       1) a matrix of 3x(4+N), the data in the Xth row is:
-%           [PQueue, PckSize, OrigSource, PckInd, HistoryVec]   where
-%       2) a 3x1 vector, where the Xth row contains an element which should be represented by 20 bits
+%   - rxMat, cell array where each cell entry rxMat{i} which can be either of the following
+%       1) a 1x11 vector: [sourceID PQueue, PckSize, OrigSource, PckInd, HistoryVec]
+%       2) a 1x2 vector: [sourceID pQueue]
 %     The format of rxMat depends on the file read from input.
 
 
@@ -74,13 +73,14 @@ for ff = 1 : length( rxFiles )
         % Extract source ID and single pQueue entry
         pQueue = bin2dec( dataRead_bin( SINGLEENTRY_FLD.OFFSET + (1:SINGLEENTRY_FLD.BITS) ) );
         
-        rxMat{ff} = zeros(3,2);
-        rxMat{ff}( str2num(fileTagTech) , : ) = [sourceID pQueue];
+        % rxMat{ff} = zeros(3,2);
+        % rxMat{ff}( str2num(fileTagTech) , : ) = [sourceID pQueue];
+        rxMat{ff} = [sourceID pQueue];
         
     else % We read more than 3 bytes + the sourceID, so this is a full matrix line
         
         % Prepare output matrix
-        rxMat{ff} = zeros(3 , 11);
+        % rxMat{ff} = zeros(3 , 11);
         
         % Extract remaining parameters
         pQueue      = bin2dec( dataRead_bin( PQUEUE_FLD.OFFSET + (1:PQUEUE_FLD.BITS) ) );
@@ -93,7 +93,7 @@ for ff = 1 : length( rxFiles )
         historyVec = str2num( historyVec_tmp );
         historyVec(1:HISTORYVEC_FLD.BITS-6) = []; 
         
-        rxMat{ff}( str2num(fileTagTech) , : ) = [sourceID pQueue pckSize origSource pckInd historyVec] ;
+        rxMat{ff} = [sourceID pQueue pckSize origSource pckInd historyVec] ;
         
     end
 end
