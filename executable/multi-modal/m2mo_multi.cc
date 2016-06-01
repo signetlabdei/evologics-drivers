@@ -182,20 +182,35 @@ int main(int argc, char* argv[]) {
 /*
 				usleep (min_sleeping_time); //sleep(); if sec.*/
 				//CHECK IF hdr->tec_id is in my phys
-				if(hdr->des_id > 0 && hdr->tec_id > 0 && hdr->msg_id > 0){
+				if(hdr->tec_id > 0){					
 					if(pmDriver.find(hdr->tec_id)!=pmDriver.end()) {
-						cout << getEpoch() << "_UNICAST_Tx_dest:" << hdr->des_id << "_tec_id:" 
-							<< hdr->tec_id << endl;
-						transm_file_stats << getEpoch() << "_UNICAST_Tx_dest:" << hdr->des_id 
-							<< "::tec_id:" << hdr->tec_id << endl;
-						k_o ? transmitBurst(pmDriver[hdr->tec_id],hdr->des_id, hdr->data) :
-						    	transmit(pmDriver[hdr->tec_id],hdr->des_id, hdr->data, ACK);
-						phy_pending_msg[hdr->tec_id] = hdr->msg_id;
+						if (hdr->des_id > 0 & hdr->msg_id > 0) {	
+							cout << getEpoch() << "_UNICAST_Tx_dest:" << hdr->des_id << "_tec_id:" 
+								<< hdr->tec_id << "data = " << hdr->data << endl;
+							transm_file_stats << getEpoch() << "_UNICAST_Tx_dest:" << hdr->des_id 
+								<< "::tec_id:" << hdr->tec_id << "data = " << hdr->data << endl;
+							k_o ? transmitBurst(pmDriver[hdr->tec_id],hdr->des_id, hdr->data) :
+							    	transmit(pmDriver[hdr->tec_id],hdr->des_id, hdr->data, ACK);
+							phy_pending_msg[hdr->tec_id] = hdr->msg_id;
+						}
+						else if (hdr->des_id > 0)
+							cout << getEpoch() << "_error_message_from_matlab "<< endl;
+						else
+						{
+							cout << getEpoch() << "_BROADCAST_tec_id:" << hdr->tec_id << "data = " 
+								<< hdr->data << endl;
+							transm_file_stats << getEpoch() << "_BROADCAST_tec_id:" 
+								<< hdr->tec_id << "data = " << hdr->data << endl;
+							transmit(pmDriver[hdr->tec_id],BROADCAST_ADD, hdr->data, NOACK);
+						}
 					}
 				}
-				else{ //BROADCAST MESSAGE via all tec--> NO ACK
-					cout << getEpoch() << "_BROADCAST_dest:" << hdr->des_id << endl;
-					transm_file_stats << getEpoch() << "_BROADCAST_dest:" << hdr->des_id << endl;
+				else
+				{ //BROADCAST MESSAGE via all tec--> NO ACK
+					cout << getEpoch() << "_BROADCAST_dest:" << hdr->des_id << "data = " 
+						<< hdr->data<< endl;
+					transm_file_stats << getEpoch() << "_BROADCAST_dest:" << hdr->des_id 
+						<< "data = " << hdr->data<< endl;
 					for(DriversMap::iterator driver_iter = pmDriver.begin();
 		        driver_iter != pmDriver.end();
 		        driver_iter++) 
@@ -213,9 +228,10 @@ int main(int argc, char* argv[]) {
 				modemStatus_old = driver_iter->second->getStatus();
 				modemStatus = driver_iter->second->updateStatus();
 				//TODO: CHECK ACK STATUS 
-				if(driver_iter->second->getAckStatus() != ACK_PENDING && 
+				ack_states_t ack_state = driver_iter->second->getAckStatus();
+				if( ack_state != ACK_PENDING && ack_state != ACK_NO_CARING && 
 					phy_pending_msg.find(driver_iter->first) != phy_pending_msg.end()) {
-					bool ack_status = driver_iter->second->getAckStatus() == ACK_CONFIRMED;
+					bool ack_status = ack_state == ACK_CONFIRMED;
 					reportAck(phy_pending_msg[driver_iter->first], driver_iter->first, 
 						ack_status, dir_label);
 					cout << getEpoch() << "_ACK_confirmed:" << ack_status << "_from_PHY:" 
@@ -243,7 +259,7 @@ int main(int argc, char* argv[]) {
 			}
 		}
 		usleep(min_sleeping_time);
-		/*usleep(1000000);*/
+		usleep(50000);
 
 /*		transm_file_stats << "[" << getEpoch() << "]:: Send from " << ID << " to " << RECEIVER 
 			       << " " << complete_message << "packet_counter = " << packet_counter << endl;
