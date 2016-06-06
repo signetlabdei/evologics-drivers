@@ -29,10 +29,13 @@
 AUTOMAKE_OPTIONS = foreign
 SUBDIRS = uwmphy_modem \
     ms2c_evologics \
+    ms2c_evologics_ll \
     pandaboard \
     utilities \
+    utilities_ll \
 	  executable/base_sample \
 	  executable/burst \
+	  executable/burst_lowlevel \
 	  executable/gpIO \
 	  executable/m2mo \
 	  executable/multi-modal

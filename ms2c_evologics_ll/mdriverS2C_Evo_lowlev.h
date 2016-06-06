@@ -178,6 +178,14 @@ class MdriverS2C_Evo_lowlev : public UWMdriver
    *  @return UWMdriver::status, the updated modem's status.
    */
   virtual modem_state_t updateStatus();
+  /**
+   * Method to empty modem queue
+   */
+  inline void emptyModemQueue(){}
+
+  inline void modemSetID(){}
+
+  inline void modemTxPBM(){}
 
  protected:
   /**

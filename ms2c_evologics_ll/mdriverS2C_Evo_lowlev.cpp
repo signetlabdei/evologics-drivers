@@ -34,7 +34,7 @@
  */
 
 #include "mdriverS2C_Evo_lowlev.h"
-#include <uwmphy_modem.h>
+//#include "uwmphy_modem.h"
 
 // Utility methods
 static void hexdump(std::string name, std::string str) {
@@ -586,4 +586,3 @@ void MdriverS2C_Evo_lowlev::setPktBitLen(int bitlen)
 {
   _msg_bitlen = bitlen;
 }
-
