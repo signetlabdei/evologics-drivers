@@ -1,0 +1,9 @@
+110,117d109
+< 
+< std::string MinterpreterAT::build_get_delay(){
+<     string at_string;
+<     stringstream astr("");
+<     astr << "AT?T";
+<     astr >> at_string;  
+<     return at_string; 
+< }
