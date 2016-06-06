@@ -42,6 +42,7 @@
 
 #define ACK 1
 #define NOACK 0
+#define BROADCAST_ADD 255
 
 // Used to measure intervals and absolute times
 typedef int64_t msec_t;

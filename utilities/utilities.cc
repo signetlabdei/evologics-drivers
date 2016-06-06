@@ -69,7 +69,7 @@ MdriverS2C_EvoLogics* connectModem(std::string ip, std::string port, int ID,
   pmDriver->setLogFile(log_name);
   pmDriver->start();
   usleep(500000);
-  //pmDriver->setResetModemQueue(false);
+  pmDriver->setResetModemQueue(false);
   pmDriver->updateStatus();
   pmDriver->modemSetID();
   usleep(5000);
@@ -79,13 +79,13 @@ MdriverS2C_EvoLogics* connectModem(std::string ip, std::string port, int ID,
   pmDriver->updateStatus();
   pmDriver->modemSetID();
   pmDriver->updateStatus();
-  pmDriver->modemSetID();
+  /*pmDriver->modemSetID();/*
   pmDriver->updateStatus();
   pmDriver->modemSetID();
   pmDriver->updateStatus();
   pmDriver->modemSetID();
   pmDriver->updateStatus();
-  pmDriver->modemSetID();/*
+  pmDriver->modemSetID();*//*
   pmDriver->updateStatus();
   pmDriver->modemSetID();*/
   //MdriverS2C_EvoLogics *pt = malloc()
