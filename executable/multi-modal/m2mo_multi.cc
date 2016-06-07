@@ -56,8 +56,11 @@ std::queue<std::string>* readMessages(char * folder) {
 	ifstream input_file_;
 	string file_name = string(folder) + string(tx_log_);
 	input_file_.open(file_name.c_str());
-	if ( !input_file_.is_open() ) 
+	if ( !input_file_.is_open() ) {
+		file_name = string(folder) + string(check_tx_log_);
+		remove(file_name.c_str());
 		return messages_queue;
+	}
 	while (std::getline(input_file_, message_line))
 	{
 		messages_queue->push(message_line);
@@ -134,8 +137,10 @@ int main(int argc, char* argv[]) {
 	DriversMap pmDriver;
 	for (int i = 3; i < argc; i++) {
 		if (*argv[i] != '0') {
-			cout << getEpoch() << " " << sizeof(argv[i])/sizeof('0') << "_ID:" << ID << "_socket:" << argv[i] <<":" << port;
-			pmDriver[i-2] = connectModem(argv[i], port, ID, set_id, argv[i]);
+			cout << getEpoch() << " " << sizeof(argv[i])/sizeof('0') << "_ID:" 
+					 << ID << "_socket:" << argv[i] <<":" << port;
+			/*pmDriver[i-2] = connectModem(argv[i], port, ID, set_id, argv[i]);*/
+			pmDriver[i-2] = connectModem(argv[i], port, ID, set_id, "");
 			cout << "connected" << endl;
 		}
 	}
