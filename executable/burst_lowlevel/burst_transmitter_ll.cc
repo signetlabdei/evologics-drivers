@@ -73,47 +73,33 @@ int main(int argc, char* argv[])
 		    << endl;
 
   // CONNECT to the modem
-  MdriverS2C_Evo_lowlev* pmDriver1 = connectModem(ip, port);
-  MdriverS2C_Evo_lowlev* pmDriver = pmDriver1;
+  MdriverS2C_Evo_lowlev* pmDriver = connectModem(ip, port,
+                                                 base_message.length()*8,
+						 "sender_lowlevel.log");
+  int modemStatus_old = pmDriver->getStatus();
+  int modemStatus = pmDriver->updateStatus();
+
   cout << "Socket: " << ip <<":" << port << endl;
   // START THE APPLICATION
-  while (true) {
+  while (packet_counter < packet_in_a_burst)
+   {
+    usleep(period);
     // SEND a packet of the "burst" (in IM mode)
     std::string complete_message = create_message(base_message, packet_counter,
                                                   message_length);
 
     transmit(pmDriver, complete_message);
-    packet_counter ++;
-    transm_file_stats << "[" << getEpoch() << "]:: Sent pck"
+    transm_file_stats << "[" << getEpoch() << "]:: Sent pck: "
 		      << complete_message << "packet_counter = "
                       << packet_counter << endl;
-    usleep(period);
-    // The last packet of the burst is sent in ack mode (TBD)
-    if ((packet_counter % packet_in_a_burst ) == (packet_in_a_burst - 1) )
-     {
-      complete_message = create_message(base_message, packet_counter, 
-                                        message_length); 
-      transmit(pmDriver, complete_message);
-      packet_counter ++;
-      cout << "Sent pck"
-           << complete_message 
-           << endl;
-      transm_file_stats << "[" << getEpoch()
-                        << "]:: Sent pck " 
-			<< " packet_counter = " 
-                        << packet_counter 
-			<< " message: " <<  complete_message
-                        << "packet_counter = ";
-      usleep(period);
-     }
-    if ( !(packet_counter % packet_in_a_burst ))
-     {
-      cout << "Backoff, packet " << packet_counter << " period = "
-           << backoff_period 
-           << "[usec]" << endl;
-      usleep(backoff_period);
-     }
+    std::cout << "[" << getEpoch() << "]:: Sent pck: "
+	      << complete_message << "packet_counter = "
+              << packet_counter << endl;
+    packet_counter ++;
+    pmDriver->updateStatus();
    }
+  // STOP DSP
+  pmDriver->stop();
   return 0;
 }
 

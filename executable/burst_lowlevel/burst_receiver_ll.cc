@@ -36,27 +36,39 @@
 
 #include "utilities_ll.h"
 
-int main(int argc, char* argv[]) {
-	cout << "Ciao Stazione" << endl;
-	if (argc < 3) {
-		cerr << "Usage: ./burstll_rx ip port" << endl;
-		return -1;
-	}
-	//set connection to the acoustic modem
-	std::string ip = argv[1];
-	std::string port = argv[2];
-	MdriverS2C_Evo_lowlev* pmDriver = connectModem(ip, port, "");
-	int modemStatus_old = pmDriver->getStatus();
-	int modemStatus = pmDriver->updateStatus();
+int main(int argc, char* argv[])
+{
+  cout << "Hello!" << endl;
+  if (argc < 3)
+    {
+      cerr << "Usage: ./burstll_rx ip port msg_bit_len" << endl;
+      return -1;
+    }
+  //set connection to the acoustic modem
+  std::string ip = argv[1];
+  std::string port = argv[2];
+  int bitlen = atoi(argv[3]);
+  MdriverS2C_Evo_lowlev* pmDriver = connectModem(ip, port, bitlen,
+                                                 "receiver_lowlevel.log");
+  int modemStatus_old = pmDriver->getStatus();
+  int modemStatus = pmDriver->updateStatus();
 
-	while (true) {
-		if (modemStatus == MODEM_IDLE_RX && modemStatus_old == MODEM_RX) {
-			std::string rxMessage = pmDriver->getRxPayload();
-			cout << "Received " << rxMessage << endl;
-		}
-		usleep(200);			
-		modemStatus_old = pmDriver->getStatus();
-		modemStatus = pmDriver->updateStatus();
-	}
-	return 0;
+  while (true)
+    {
+      
+      if (modemStatus == MODEM_IDLE_RX && modemStatus_old == MODEM_RX)
+      {
+	  std::string rxMessage = pmDriver->getRxPayload();
+	  cout << "Received: " << rxMessage << endl;
+          //pmDriver->resetModemStatus();
+       }
+      usleep(500000);			
+      modemStatus_old = pmDriver->getStatus();
+      modemStatus = pmDriver->updateStatus();
+    }
+
+  // Turn off DSP
+  pmDriver->stop();
+
+  return 0;
 }

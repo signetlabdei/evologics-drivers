@@ -118,13 +118,13 @@ static std::string dechexdumpdata(std::string str)
       int symbol;
       char ch;
       std::stringstream sstr("");
-      char * hex_byte = new char[str_sym.size()];
-      std::copy(str_sym.begin(), str_sym.end(), hex_byte);
-      sstr << "0x" << *--hex_byte << *++hex_byte;
+      // char * hex_byte = new char[str_sym.size()];
+      // std::copy(str_sym.begin(), str_sym.end(), hex_byte);
+      sstr << "0x" << str_sym;
       sstr >> std::hex >> symbol;
       ch = symbol;
       str_out += ch;
-      delete[] hex_byte;
+      //delete[] hex_byte;
     }
 
   return str_out;
@@ -326,8 +326,10 @@ void MinterpreterTEL::parse_TELEGRAM(std::string telegram)
   std::string _data_p = _data.erase(0,1);
   _data_p = _data_p.erase(_data_p.size()-1, 1);
 
+  std::cout << _data_p << std::endl;
   c_data = dechexdumpdata(_data_p);
 
+  std::cout << c_data << std::endl;
   pmDriver -> updateRx(0, INT_MAX, c_data);
   rx_integrity = atof(_integrity.c_str());
 

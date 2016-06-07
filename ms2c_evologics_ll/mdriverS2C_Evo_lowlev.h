@@ -32,7 +32,7 @@
  * @version 0.0.1
  * @brief Class derived from UWMdriver to interface ns2/NS-Miracle with the
  * S2C EvoLogics acoustic modems through the low level firmware made available,
- * individually, by EvoLogics, Gmbh (www.evologics.de).
+ * individually, by EvoLogics, Gmbh (www.evologics.de). Standalone drivers.
  */
 
 #ifndef UWMDRIVERS2CLOWLEVEL_H
@@ -187,7 +187,7 @@ class MdriverS2C_Evo_lowlev : public UWMdriver
 
   inline void modemTxPBM(){}
 
- protected:
+ public:
   /**
    * Method that manages the transmission of TELEGRAMS and configurations via
    * GPIOs to the modem.

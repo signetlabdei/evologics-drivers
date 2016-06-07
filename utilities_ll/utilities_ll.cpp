@@ -62,19 +62,18 @@ unsigned long int getEpoch()
 }
 
 MdriverS2C_Evo_lowlev* connectModem(std::string ip, std::string port,
-				   std::string log_name)
+				    int bitlen, std::string log_name)
 {
   MdriverS2C_Evo_lowlev* pmDriver = new MdriverS2C_Evo_lowlev(ip+":"+port);
   // MdriverS2C_EvoLogics* pmDriver = &pmDriver1;
   pmDriver->setLogFile(log_name);
+  pmDriver->setPktBitLen(bitlen);
+  // TURN ON DSP
   pmDriver->start();
+
   usleep(500000);
-  // pmDriver->setResetModemQueue(false);
   pmDriver->updateStatus();
-  usleep(5000);
-  // pmDriver->updateStatus();
-  // pmDriver->modemSetID();*/
-  // MdriverS2C_EvoLogics *pt = malloc()
+  usleep(100000);
   return pmDriver;
 }
 

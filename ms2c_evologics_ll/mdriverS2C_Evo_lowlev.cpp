@@ -30,7 +30,7 @@
  * @file mdriverS2C_Evo_lowlev.cc
  * @author Roberto Francescon
  * @version 0.0.1
- * @brief Implementation of the MdriverS2C_Evo_lowlev class.
+ * @brief Implementation of the MdriverS2C_Evo_lowlev class for standalone sw.
  */
 
 #include "mdriverS2C_Evo_lowlev.h"
@@ -106,7 +106,7 @@ MdriverS2C_Evo_lowlev::MdriverS2C_Evo_lowlev(std::string path)
   mConnector(this, path),
   _gain(0),
   _SL(3),
-  _bitrate_i(5),
+  _bitrate_i(36),
   _chipset(2),
   _th(350),
   _mps_th(0),
@@ -365,8 +365,28 @@ modem_state_t MdriverS2C_Evo_lowlev::updateStatus()
     }
   else if (status == MODEM_RX)
     {
+      std::stringstream sstr("");
+      string strlog;
+      sstr << "UPDATE_STATUS::END_RX::" << status
+	   << "_M_STATUS_TX_" << m_state_tx << "_M_STATUS_RX_"
+	   << m_state_rx;
+      strlog = sstr.str();
+      printOnLog(LOG_LEVEL_INFO,"MS2C_LOWLEVELDRIVER", strlog);
       m_state_rx = RX_STATE_IDLE;
       status = MODEM_IDLE_RX;
+      cread = false;
+    }
+  else if (status == MODEM_IDLE_RX)
+    {
+      std::stringstream sstr("");
+      string strlog;
+      sstr << "UPDATE_STATUS::GOING_TO_LISTENING::" << status
+	   << "_M_STATUS_TX_" << m_state_tx << "_M_STATUS_RX_"
+	   << m_state_rx;
+      strlog = sstr.str();
+      printOnLog(LOG_LEVEL_INFO,"MS2C_LOWLEVELDRIVER", strlog);
+      m_state_rx = RX_STATE_IDLE;
+      status = MODEM_IDLE;
       cread = false;
     }
   else // read from queue_rx only

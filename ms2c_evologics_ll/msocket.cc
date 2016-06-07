@@ -117,7 +117,7 @@ int Msocket::writeToModem(std::string str){
 	
 	// Send message host to modem via TCP-IP socket
 	int w_bytes = write(sockfd,msg_tx,msg_ssz); 
-	
+
 	// Return the number of written bytes
 	return w_bytes;
 }

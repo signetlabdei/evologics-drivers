@@ -70,12 +70,12 @@ unsigned long int getEpoch();
  *
  * @param std::string ip Ip address of the modem
  * @param std::string port socket port number 
- * @param int ID Identifier of the node
- * @param bool set_id set the actual id of the node or not (not by default).
+ * @param filename of the logfile
+ * @param int that set the bit length of messages
  * @return the driver
 **/
 MdriverS2C_Evo_lowlev* connectModem(std::string ip, std::string port,
-std::string log_name = "");
+				    int bitlen, std::string log_name = "");
 
 /**
  * Send a packet
