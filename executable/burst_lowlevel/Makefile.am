@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2015 Regents of the SIGNET lab, University of Padova.
+# Copyright (c) 2016 Regents of the SIGNET lab, University of Padova.
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -25,34 +25,25 @@
 # WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR 
 # OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF 
 # ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ 
+bin_PROGRAMS = burstll_tx burstll_rx
 
+burstll_tx_SOURCES = burst_transmitter_ll.cc
 
-AC_INIT(M2Mo,1.0)
-AM_INIT_AUTOMAKE 
-# AC_PROG_RANLIB
-AC_LANG(C++)
-AC_PROG_CXX
-LT_INIT
-AC_CONFIG_MACRO_DIR([m4])
+burstll_rx_SOURCES = burst_receiver_ll.cc
 
-AC_DEFINE(CPP_NAMESPACE,std) 
+burstll_tx_CPPFLAGS = -I$(top_srcdir)/utilities_ll \
+	-I$(top_srcdir)/ms2c_evologics_ll \
+	-I$(top_srcdir)/uwmphy_modem 
 
-AC_CHECK_LIB(pthread, pthread_create, [LIBS="$LIBS -lpthread"]) 
+burstll_rx_CPPFLAGS = -I$(top_srcdir)/utilities_ll \
+	-I$(top_srcdir)/ms2c_evologics_ll \
+	-I$(top_srcdir)/uwmphy_modem
 
-AC_CONFIG_FILES([
-    Makefile
-    uwmphy_modem/Makefile
-    ms2c_evologics/Makefile
-    ms2c_evologics_ll/Makefile
-    pandaboard/Makefile
-    utilities/Makefile
-    utilities_ll/Makefile
-    executable/base_sample/Makefile
-    executable/burst/Makefile
-    executable/burst_lowlevel/Makefile
-    executable/gpIO/Makefile
-    executable/m2mo/Makefile
-    executable/multi-modal/Makefile
-    ])
+burstll_tx_LDADD = ../../utilities_ll/libutilitiesll.la \
+	../../ms2c_evologics_ll/libms2c_evologicsll.la \
+	../../uwmphy_modem/libuwmphy_modem.la 
 
-AC_OUTPUT 
+burstll_rx_LDADD = ../../utilities_ll/libutilitiesll.la \
+	../../ms2c_evologics_ll/libms2c_evologicsll.la \
+	../../uwmphy_modem/libuwmphy_modem.la 
