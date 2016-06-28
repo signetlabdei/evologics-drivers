@@ -26,24 +26,13 @@
 # OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF 
 # ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  
-bin_PROGRAMS = burstll_tx burstll_rx
+AM_CXXFLAGS = -Wall -ggdb3
 
-burstll_tx_SOURCES = burst_transmitter_ll.cc
+noinst_LTLIBRARIES = libutilities_ll.la
 
-burstll_rx_SOURCES = burst_receiver_ll.cc
+libutilities_ll_la_SOURCES = utilities_ll.h utilities_ll.cpp
 
-burstll_tx_CPPFLAGS = -I$(top_srcdir)/utilities_ll \
-	-I$(top_srcdir)/ms2c_evologics_ll \
-	-I$(top_srcdir)/uwmphy_modem 
-
-burstll_rx_CPPFLAGS = -I$(top_srcdir)/utilities_ll \
-	-I$(top_srcdir)/ms2c_evologics_ll \
-	-I$(top_srcdir)/uwmphy_modem
-
-burstll_tx_LDADD = ../../utilities_ll/libutilities_ll.la \
-	../../ms2c_evologics_ll/libms2c_evologics_ll.la \
-	../../uwmphy_modem/libuwmphy_modem.la 
-
-burstll_rx_LDADD = ../../utilities_ll/libutilities_ll.la \
-	../../ms2c_evologics_ll/libms2c_evologics_ll.la \
-	../../uwmphy_modem/libuwmphy_modem.la 
+libutilities_ll_la_CPPFLAGS = -I$(top_srcdir)/ms2c_evologics_ll \
+						   -I$(top_srcdir)/uwmphy_modem
+libutilities_ll_la_LIBADD = ../ms2c_evologics_ll/libms2c_evologics_ll.la \
+						 ../uwmphy_modem/libuwmphy_modem.la
