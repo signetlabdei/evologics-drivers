@@ -68,6 +68,7 @@ MdriverS2C_Evo_lowlev* connectModem(std::string ip, std::string port,
   // MdriverS2C_EvoLogics* pmDriver = &pmDriver1;
   pmDriver->setLogFile(log_name);
   pmDriver->setPktBitLen(bitlen);
+  pmDriver->setRawFlag(1);
   // TURN ON DSP
   pmDriver->start();
 
@@ -81,6 +82,12 @@ void transmit(MdriverS2C_Evo_lowlev* pmDriver, std::string message)
 {
   pmDriver->updateTx(0xffffffff, message);
   pmDriver->modemTx();
+}
+
+void transmitRaw(MdriverS2C_Evo_lowlev* pmDriver, std::string message)
+{
+  pmDriver->updateTx(0xffffffff, message);
+  pmDriver->modemTxRaw();
 }
 
 void transmitBurst(MdriverS2C_Evo_lowlev* pmDriver, std::string message)

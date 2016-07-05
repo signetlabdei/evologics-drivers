@@ -88,6 +88,16 @@ MdriverS2C_Evo_lowlev* connectModem(std::string ip, std::string port,
 void transmit(MdriverS2C_Evo_lowlev* pmDriver, std::string message);
 
 /**
+ * Send a packet without hexdumping it
+ *
+ * @param MdriverS2C_EvoLogics* pmDriver pointer to the modem socket
+ * @param int dest Destination node Identifier
+ * @param std::string message message that has to be sent
+ * @param bool ack flag to indicate whether to transmit IM with or without ack request
+**/
+void transmitRaw(MdriverS2C_Evo_lowlev* pmDriver, std::string message);
+
+/**
  * Send via keep_online mode
  *
  * @param MdriverS2C_EvoLogics* pmDriver pointer to the modem socket

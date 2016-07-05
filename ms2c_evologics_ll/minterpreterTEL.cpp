@@ -264,6 +264,22 @@ std::string MinterpreterTEL::build_send_data(std::string _data, int _delay_f,
   return data_telegram;
 }
 
+std::string MinterpreterTEL::build_send_data_raw(std::string _data,
+						 int _delay_f,  double _delay)
+{
+  std::string data_telegram;
+  std::stringstream astr;
+  std::string hexdumped_data;
+
+  //ASCII coding: 8 bits per character
+  int bitlen = _data.size()*4;
+
+  astr << "send_sync_data" << "," << bitlen << "," << _delay_f << "," << _delay
+       << "," << _data;
+  astr >> data_telegram;
+  return data_telegram;
+}
+
 std::string MinterpreterTEL::build_bitrate(int _bitrate)
 {
   std::string bitrate_telegram;
@@ -282,6 +298,15 @@ std::string MinterpreterTEL::build_bitrate(int _bitrate)
   return bitrate_telegram;
 }
 
+std::string MinterpreterTEL::build_rssi(int _offset_s)
+{
+  std::string rssi_telegram;
+  std::stringstream astr("");
+  astr << "rssi" << "," << _offset_s;
+  astr >> rssi_telegram;
+  return rssi_telegram;
+}
+
 std::string MinterpreterTEL::build_clear_tx()
 {
   std::string clear_command("gpio,clear,tx_on");
@@ -289,7 +314,7 @@ std::string MinterpreterTEL::build_clear_tx()
 }
 
 
-void MinterpreterTEL::parse_TELEGRAM(std::string telegram)
+void MinterpreterTEL::parse_TELEGRAM(std::string telegram, bool raw_flag)
 {
   // take everything up! for future needs...
   std::string _TEL;
@@ -327,9 +352,14 @@ void MinterpreterTEL::parse_TELEGRAM(std::string telegram)
   _data_p = _data_p.erase(_data_p.size()-1, 1);
 
   std::cout << _data_p << std::endl;
-  c_data = dechexdumpdata(_data_p);
+  if (!raw_flag)
+    {
+      c_data = dechexdumpdata(_data_p);
+    }
+  else
+    c_data = _data_p;
 
-  std::cout << c_data << std::endl;
+  //std::cout << c_data << std::endl;
   pmDriver -> updateRx(0, INT_MAX, c_data);
   rx_integrity = atof(_integrity.c_str());
 

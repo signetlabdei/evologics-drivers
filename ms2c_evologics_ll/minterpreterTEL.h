@@ -159,6 +159,16 @@ class MinterpreterTEL : public UWMinterpreter
    */
   std::string build_send_data(std::string _data, int _delay_f, double _delay);
   /**
+   * Method for building the TELEGRAM that will send DATA messages without
+   * hexdumping them.
+   * The maximum allowed length of DATA messages is 7881
+   * @param _data
+   * @param _delay_f Flag to tell the firmware to real _delay
+   * @param _delay   Can make the operation to wait some maount of time
+   * @return data_telegram
+   */
+  std::string build_send_data_raw(std::string _data,int _delay_f,double _delay);
+  /**
    * Method for building the TELEGRAM that will set the bitrate used for
    * transmission.
    * @param _bitrate
@@ -166,16 +176,24 @@ class MinterpreterTEL : public UWMinterpreter
    */
   std::string build_bitrate(int _bitrate);
   /**
+   * Method for building the TELEGRAM that will ask for RSSI indicator
+   * values per symbol.
+   * @param _offset_s offset in bits for the calculation of rssi values (even)
+   * @return rssi_telegram
+   */
+  std::string build_rssi(int _offset_s);
+  /**
    * Method for building the COMMAND that will clear the tx_on pin
    * @return clear_command
    */
   std::string build_clear_tx();
   /**
    * Method for parsing what is received upon receiving a TELEGRAM
-   * @param _received
+   * @param _telegram String to be parsed
+   * @param raw_flag  Whether or not to hexdump the message received
    * 
    */
-  void parse_TELEGRAM(std::string telegram);
+  void parse_TELEGRAM(std::string telegram, bool raw_flag);
 
 };
 #endif /*MINTERPRETERTEL_H*/

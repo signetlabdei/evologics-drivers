@@ -47,9 +47,11 @@ enum LL_STATE_TX {
   TX_STATE_IDLE = 0,
   TX_STATE_ON1, TX_STATE_ON2, TX_STATE_ON3, TX_STATE_ON4,
   TX_STATE_OFF1, TX_STATE_OFF2, TX_STATE_OFF3,
-  TX_STATE_DATA, 
+  TX_STATE_DATA,
+  TX_STATE_DATA_RAW,
   TX_STATE_CTRL, 
   TX_STATE_BITRATE_CFG, 
+  TX_STATE_RSSI,
   TX_STATE_DSP_CFG, 
   TX_STATE_ASK_BUSY, 
   TX_STATE_STOP_LISTEN, 
@@ -101,6 +103,7 @@ class MdriverS2C_Evo_lowlev : public UWMdriver
            time for some operations e.g., sending a packet, stopping listening*/
   int _msg_bitlen; /**< Very very temporary parameter to let the receiver not
                      screw up and read only the, known, number of bytes */
+  bool raw_flag; /**< Flag to decide whether data should be hexdumped or not*/
   
 
  public:
@@ -135,6 +138,10 @@ class MdriverS2C_Evo_lowlev : public UWMdriver
    */
   void setPktBitLen(int bitlen);
   /**
+   * Method to set the raw flag whether hexdump data or not
+   */
+  void setRawFlag(bool flag);
+  /**
    * Method that notifies the driver that there is a packet to be sent via
    * the modem.
    * NOTE: when this function is called (by an UWMPhy_modem object) the
@@ -142,6 +149,14 @@ class MdriverS2C_Evo_lowlev : public UWMdriver
    * immediately to the modem.
    */
   void modemTx();
+  /**
+   * Method that notifies the driver that there is a packet to be sent via
+   * the modem, that might not be huxdumped.
+   * NOTE: when this function is called (by an UWMPhy_modem object) the
+   * driver's status must be set to MODEM_TX and the packet must be sent
+   * immediately to the modem.
+   */
+  void modemTxRaw();
   /**
    * Method that notifies the driver that there is a packet to be sent via
    * the modem. On the Low Level firmware nothing as this exists so the call

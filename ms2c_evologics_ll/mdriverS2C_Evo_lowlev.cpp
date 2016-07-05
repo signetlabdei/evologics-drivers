@@ -112,7 +112,8 @@ MdriverS2C_Evo_lowlev::MdriverS2C_Evo_lowlev(std::string path)
   _mps_th(0),
   _delay(0),
   _delay_flag(0),
-  _msg_bitlen(0)
+  _msg_bitlen(0),
+  raw_flag(0)
 {
   m_state_tx = TX_STATE_IDLE;
   m_state_rx = RX_STATE_IDLE;
@@ -157,6 +158,13 @@ void MdriverS2C_Evo_lowlev::modemTx()
 {
   status = MODEM_TX; 
   m_state_tx = TX_STATE_DATA;
+  modemTxManager();
+}
+
+void MdriverS2C_Evo_lowlev::modemTxRaw()
+{
+  status = MODEM_TX; 
+  m_state_tx = TX_STATE_DATA_RAW;
   modemTxManager();
 }
 
@@ -403,7 +411,7 @@ modem_state_t MdriverS2C_Evo_lowlev::updateStatus()
 		{
                   std::stringstream sstr("");
 		  std::string strlog;
-                  mInterpreter.parse_TELEGRAM(rx_msg);        
+                  mInterpreter.parse_TELEGRAM(rx_msg, raw_flag);        
 		  sstr << "UPDATE_STATUS::DETECTED_DATA::" <<  payload_rx<< "::"
                        << m_state_tx << "_" << status;
 		  strlog = sstr.str();
@@ -486,6 +494,12 @@ void MdriverS2C_Evo_lowlev::modemTxManager()
       sstr >> strlog;
       printOnLog(LOG_LEVEL_INFO,"MS2C_LOWLEVELDRIVER", strlog);
       break;
+    case TX_STATE_DATA_RAW:
+      tx_msg = mInterpreter.build_send_data_raw(payload_tx, _delay_flag,_delay);
+      sstr << "MODEM_TX_MANAGER::TELEGRAM_DATA::MSG::" << tx_msg;
+      sstr >> strlog;
+      printOnLog(LOG_LEVEL_INFO,"MS2C_LOWLEVELDRIVER", strlog);
+      break;
     case TX_STATE_CTRL:
       tx_msg = mInterpreter.build_send_ctrl(payload_tx, _delay_flag, _delay);
       sstr << "MODEM_TX_MANAGER::TELEGRAM_CTRL::" << tx_msg ;
@@ -502,6 +516,12 @@ void MdriverS2C_Evo_lowlev::modemTxManager()
     case TX_STATE_BITRATE_CFG:
       tx_msg = mInterpreter.build_bitrate(_bitrate_i);
       sstr << "MODEM_TX_MANAGER::TELEGRAM_BITRATE_CFG::"<< tx_msg;
+      sstr >> strlog;
+      printOnLog(LOG_LEVEL_INFO,"MS2C_LOWLEVELDRIVER", strlog);
+      break;
+    case TX_STATE_RSSI:
+      tx_msg = mInterpreter.build_rssi(0);
+      sstr << "MODEM_TX_MANAGER::TELEGRAM_RSSI::"<< tx_msg;
       sstr >> strlog;
       printOnLog(LOG_LEVEL_INFO,"MS2C_LOWLEVELDRIVER", strlog);
       break;
@@ -571,6 +591,10 @@ void MdriverS2C_Evo_lowlev::updateTxState(ll_tx_state_t state)
       m_state_tx = TX_STATE_IDLE;
       modemTxManager();
       break;
+    case TX_STATE_RSSI:
+      m_state_tx = TX_STATE_RSSI;
+      modemTxManager();
+      break;
     case TX_STATE_DSP_CFG:
       m_state_tx = TX_STATE_IDLE;
       modemTxManager();
@@ -605,4 +629,9 @@ void MdriverS2C_Evo_lowlev::setSourceLevel(int level)
 void MdriverS2C_Evo_lowlev::setPktBitLen(int bitlen)
 {
   _msg_bitlen = bitlen;
+}
+
+void MdriverS2C_Evo_lowlev::setRawFlag(bool flag)
+{
+  raw_flag = flag;
 }
