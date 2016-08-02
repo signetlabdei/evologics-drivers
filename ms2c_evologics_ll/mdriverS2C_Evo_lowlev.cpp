@@ -106,7 +106,7 @@ MdriverS2C_Evo_lowlev::MdriverS2C_Evo_lowlev(std::string path)
   mConnector(this, path),
   _gain(0),
   _SL(3),
-  _bitrate_i(36),
+  _bitrate_i(63),
   _chipset(2),
   _th(350),
   _mps_th(0),
@@ -217,6 +217,13 @@ modem_state_t MdriverS2C_Evo_lowlev::updateStatus()
 	  std::string parser("\n");
 	  size_t p_offset = 0;
 	  size_t p_parser = rx_msg.find(parser);
+
+          while (!rx_msg.empty() && p_parser == std::string::npos)
+	    {
+	      usleep(1000);
+	      rx_msg+=mConnector.readFromModem();
+              p_parser = rx_msg.find(parser);
+	    }
 
           while (p_parser != std::string::npos)
 	    {
@@ -624,6 +631,8 @@ void MdriverS2C_Evo_lowlev::setBitrate(int index)
 void MdriverS2C_Evo_lowlev::setSourceLevel(int level)
 {
   _SL = level;
+  m_state_tx = TX_STATE_DSP_CFG;
+  modemTxManager();
 }
 
 void MdriverS2C_Evo_lowlev::setPktBitLen(int bitlen)

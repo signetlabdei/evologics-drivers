@@ -135,7 +135,7 @@ void *read_process_msocket(void *pMsocket_me_)
 	while (1) 
 	{
 		// Read from the socket
-		tmp_.msg_length = read(pMsocket_me->getSocket(),msg_rx,_MAX_MSG_LENGTH);
+	  tmp_.msg_length = read(pMsocket_me->getSocket(),msg_rx,_MAX_MSG_LENGTH);
 		
 		if( tmp_.msg_length < 0 ) {
                     perror( "SOCKET::READ::ERROR_READ_FROM_SOCKET" );
