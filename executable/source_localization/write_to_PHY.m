@@ -7,25 +7,33 @@
 
 % Author: Arabella Sin
 
-function filename_ = write_to_PHY(message, n_pck)
+function filename_ = write_to_PHY(message, n_pck, TxFlag)
 
-filename = 's_loc_pck';
-filextension = '.snd';
-out_dir = '.';
-
-% Open file to write with associated file name
-%fout = fopen( [out_dir '/' filename '_' num2str(n_pck) '_' filextension ] , 'w' );
-fout = fopen( [out_dir '/' filename filextension ] , 'w' );
-
-% Write packet to file: packet should be a string of characters
-fprintf(fout , '%s\n' , message);
-fclose(fout);
-
-%filename_ = [filename '_' num2str(n_pck) '_' filextension];
-filename_ = [filename filextension];
-
-check_filename = 'tx_flag.txt';
-check_file = fopen([out_dir '/' check_filename], 'w');
-fclose(check_file);
+if TxFlag
+    filename = 's_loc_pck';
+    filextension = '.snd';
+    checkname = 'tx_flag_';
+    checkextension = '_.txt';
+    check_filename = 'tx_flag.txt';
+    out_dir = '.';
+    
+    tx_message = (dec2base(message, 16))';
+    tx_message = (tx_message(:))';
+    
+    % Open file to write with associated file name
+    filename_ = [filename '_' num2str(n_pck) '_' filextension];
+    fout = fopen( filename_ , 'w' );
+    %fout = fopen( [out_dir '/' filename filextension ] , 'w' );
+    
+    % Write packet to file: packet should be a string of characters
+    fprintf(fout , '%s\n' , tx_message);
+    fclose(fout);
+     
+    check_filename = [checkname num2str(n_pck) checkextension];
+    check_file = fopen([out_dir '/' check_filename], 'w');
+    fprintf(check_file, '%d\n' , n_pck);
+    fclose(check_file);
+    
+end
 
 end

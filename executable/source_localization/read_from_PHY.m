@@ -7,42 +7,79 @@
 
 % Author: Nigel Farage
 
-function [packet, pck_n] = read_from_PHY()
+function [CurrentPckSym, PckTime, PckType, pck_n] = read_from_PHY(PckNumHeadMat, PckNumTailMat, NodeInd, ...
+    NumHead, NumTail, PckLenType1, PckLenType2, MinSameForSOSSource, NumTxDelay, MaxRxPckLen)
 
 % Obtain ls in actual dir for filename pattern specified
 folder = '.';
 filename = 's_loc_pck_';
 filextension = '_.rcv';
+check_init = 'rx_flag_';
+check_end  = '_.txt';
 ls_dir = dir([folder '/' filename '*' filextension]);
+check_flag = dir([folder '/' check_init '*' check_end]);
 % format is: s_loc_pck_*_.rcv
 
-packet = struct;
+CurrentPckSym = [];
 pck_n = 0;
+PckType = 0;
+PckTime = 0;
+N = size(PckNumHeadMat, 1);
 
-if ~isempty(ls_dir) % files exist so read them
+if ~isempty(check_flag) % check flags exist so read them
     
-    for i=1:length(ls_dir)
-        
-        filename = ls_dir(i).name;
-        filename_s = textscan( filename, '%s', 'Delimiter' , '_' );
-        pck_n = filename_s{1}{4}; %%% Be aware of where th pck num is!!!
-        
-        f_id = fopen(filename, 'r');
+    % Find minimum
+    pck_n = Inf;
+    for i=1:length(check_flag)
+        check_filename = check_flag(i).name;
+        filename_str = textscan( check_filename, '%s', 'Delimiter' , '_' );
+        n = filename_str{1}{3}; %%% Be aware of where th pck num is!!!
+        if n < pck_n
+            pck_n = n;
+            CurrentCheckName = check_filename;
+        end
+    end
+    
+    delete(CurrentCheckName);
+    
+    filename = ['s_loc_pck_', pck_n, '_.rcv'];
+    
+    f_id = fopen(filename, 'r');
+    if f_id ~= -1
         text_read = fscanf( f_id , '%s' );
         text_read_scan = textscan(text_read , '%s' , 'Delimiter' , ',');
         
-        data_stream = text_read_scan{1}{1};
-        %time = text_read_scan{1}{2};
+        Pck = text_read_scan{1}{1};
         
-        packet.data = data_stream;
-        %packet.time = time;
+        PckTime = str2num(text_read_scan{1}{2})/1000;
         
-        fclose(f_id);
-
-        delete(filename);
+        RxPck = [];
+        for ind = 1:2: length(Pck)
+            CurrentSym = Pck(ind:ind+1);
+            if ~(any(strfind(CurrentSym, '-'))) && ~(any(strfind(CurrentSym, '+'))) && ~(any(strfind(CurrentSym, '.')))
+                RxPck = [RxPck, base2dec(CurrentSym, 16)];
+            end
+        end
+        
+        RxPck = RxPck(1: min([length(RxPck), MaxRxPckLen]));
+        
+        %look for SOS source
+        diff = RxPck(2: end) - RxPck(1: end-1);
+        NumZero = length(find(diff == 0));
+        if NumZero > MinSameForSOSSource
+            PckType = 1;
+        else
+            %CheckPckType;
+            PckType = 2;
+            CurrentPckSym = RxPck;
+        end
     end
     
+    fclose(f_id);
+    
+    delete(filename);
 end
+
 
 
 end
