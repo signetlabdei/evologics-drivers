@@ -26,24 +26,15 @@
 # OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF 
 # ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  
-bin_PROGRAMS = s_localization s_send
+bin_PROGRAMS = s_localization
 
 s_localization_SOURCES = s_localization.cpp
 
-s_send_SOURCES = s_send.cpp
 
 s_localization_CPPFLAGS = -I$(top_srcdir)/utilities_ll \
 	-I$(top_srcdir)/ms2c_evologics_ll \
 	-I$(top_srcdir)/uwmphy_modem 
 
-s_send_CPPFLAGS = -I$(top_srcdir)/utilities \
-	-I$(top_srcdir)/ms2c_evologics \
-	-I$(top_srcdir)/uwmphy_modem 
-
 s_localization_LDADD = ../../utilities_ll/libutilities_ll.la \
 	../../ms2c_evologics_ll/libms2c_evologics_ll.la \
-	../../uwmphy_modem/libuwmphy_modem.la 
-
-s_send_LDADD = ../../utilities/libutilities.la \
-	../../ms2c_evologics/libms2c_evologics.la \
-	../../uwmphy_modem/libuwmphy_modem.la 
+	../../uwmphy_modem/libuwmphy_modem.la
