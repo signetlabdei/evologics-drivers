@@ -30,6 +30,7 @@ AUTOMAKE_OPTIONS = foreign
 SUBDIRS = uwmphy_modem \
     ms2c_evologics \
     ms2c_evologics_ll \
+    enea_opt_modem \
     pandaboard \
     utilities \
     utilities_ll \
