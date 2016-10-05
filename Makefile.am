@@ -37,6 +37,7 @@ SUBDIRS = uwmphy_modem \
 	  executable/base_sample \
 	  executable/burst \
 	  executable/burst_lowlevel \
+      executable/burst_enea \
 	  executable/gpIO \
 	  executable/m2mo \
 	  executable/multi-modal \

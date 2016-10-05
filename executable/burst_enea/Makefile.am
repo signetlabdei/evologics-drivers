@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2015 Regents of the SIGNET lab, University of Padova.
+# Copyright (c) 2016 Regents of the SIGNET lab, University of Padova.
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -25,37 +25,17 @@
 # WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR 
 # OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF 
 # ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ 
+bin_PROGRAMS = burst_tx burst_rx
 
+burst_tx_SOURCES = burst_transmitter.cc
 
-AC_INIT(M2Mo,1.0)
-AM_INIT_AUTOMAKE 
-# AC_PROG_RANLIB
-AC_LANG(C++)
-AC_PROG_CXX
-LT_INIT
-AC_CONFIG_MACRO_DIR([m4])
+burst_rx_SOURCES = burst_receiver.cc
 
-AC_DEFINE(CPP_NAMESPACE,std) 
+burst_tx_CPPFLAGS = -I$(top_srcdir)/enea_opt_modem
 
-AC_CHECK_LIB(pthread, pthread_create, [LIBS="$LIBS -lpthread"]) 
+burst_rx_CPPFLAGS = -I$(top_srcdir)/enea_opt_modem 
 
-AC_CONFIG_FILES([
-    Makefile
-    uwmphy_modem/Makefile
-    ms2c_evologics/Makefile
-    ms2c_evologics_ll/Makefile
-    enea_opt_modem/Makefile
-    pandaboard/Makefile
-    utilities/Makefile
-    utilities_ll/Makefile
-    executable/base_sample/Makefile
-    executable/burst/Makefile
-    executable/burst_enea/Makefile
-    executable/burst_lowlevel/Makefile
-    executable/gpIO/Makefile
-    executable/m2mo/Makefile
-    executable/multi-modal/Makefile
-    executable/source_localization/Makefile
-    ])
+burst_tx_LDADD = ../../enea_opt_modem/libenea_opt_modem.la 
 
-AC_OUTPUT 
+burst_rx_LDADD = ../../enea_opt_modem/libenea_opt_modem.la 
