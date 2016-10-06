@@ -303,9 +303,13 @@ void MinterpreterOp::parse_recv(std::string rx_string) {
     }
     getline(iastr, _rec, ',');
     if (_f.size() > 3 ) {
-      while (atoi(_f.substr(3).c_str()) !=  (_rec.size() -2)) {
+      while (atoi(_f.substr(3).c_str()) >  (_rec.size() -2)) {
         getline(iastr, _trash, ',');
+        //cout <<  "needed: " << atoi(_f.substr(3).c_str()) << " trash = " << _trash << ", red: " << (_rec.size()-2) <<endl;
         _rec.append(",");
+        _rec.append(_trash);
+        //cout <<  "new reed: " << _rec.size()-2 <<endl;
+        _trash = "";
       }
     }
     //IF NEW_FIRMWARE: when rx power will be implemented
