@@ -39,43 +39,48 @@
 
 int main(int argc, char* argv[]) {
 	cout << "Ciao Stazione" << endl;
-	if (argc < 6) {
-		cerr << "Insert ID_RECEIVER serial baud ip port" << endl;
+	if (argc < 7) {
+		cerr << "Insert ID ID_TRANSMITTER serial baud ip port" << endl;
 		return -1;
 	}
 	//set connection to the acoustic modem
-	int ID_RECEIVER = atoi(argv[1]);
-	std::string serial = argv[2];
-	int baud = atoi(argv[3]);
-	std::string ip = argv[4];
-	std::string port = argv[5];
+	int ID = atoi(argv[1]);
+	int ID_TRANSITTER = atoi(argv[2]);
+	std::string serial = argv[3];
+	int baud = atoi(argv[4]);
+	std::string ip = argv[5];
+	std::string port = argv[6];
 	Enea_opt_driver optDriver(serial, baud);
-	cout << "ID " << ID_RECEIVER << endl;
-	optDriver.setID(ID_RECEIVER);
+	cout << "ID " << ID << endl;
+	optDriver.setID(ID);
   optDriver.setPeriod(0.01);
 	optDriver.start();
 	int opt_modemStatus_old = optDriver.getStatus();
 	int opt_modemStatus = optDriver.updateStatus();
 
-	MdriverS2C_EvoLogics* acDriver = connectModem(ip, port, ID_RECEIVER);
+	MdriverS2C_EvoLogics* acDriver = connectModem(ip, port, ID);
 	int ac_modemStatus_old = acDriver->getStatus();
 	int ac_modemStatus = acDriver->updateStatus();
 	std::string rxMessage = "";
+	int packet_counter = 0;
+
 	while (true) {
 		if (opt_modemStatus == OPT_MODEM_IDLE && opt_modemStatus_old == OPT_MODEM_RX) {
 			rxMessage = optDriver.getRxPayload();
-			cout << "Ricevuto from optical " << ID_RECEIVER << " " << rxMessage << endl;
+			cout << "Ricevuto from optical " << ID << " " << rxMessage << endl;
+			if( atoi(rxMessage.c_str()) == packet_counter ){
+				packet_counter++;
+			}
+			else if( atoi(rxMessage.c_str()) > packet_counter ) {
+				std::stringstream converter;
+				converter << packet_counter;
+				transmit(acDriver, ID, converter.str(), NOACK);
+			}
 		}
-		if (ac_modemStatus == MODEM_IDLE_RX && ac_modemStatus_old == MODEM_RX) {
-			rxMessage = acDriver->getRxPayload();
-			cout << "Ricevuto from acoustic " << ID_RECEIVER << " " << rxMessage << endl;
-		}
-		usleep(200);			
+		usleep(10);			
 		opt_modemStatus_old = optDriver.getStatus();
 		opt_modemStatus = optDriver.updateStatus();
 
-		ac_modemStatus_old = acDriver->getStatus();
-		ac_modemStatus = acDriver->updateStatus();
 	}
 	return 0;
 }

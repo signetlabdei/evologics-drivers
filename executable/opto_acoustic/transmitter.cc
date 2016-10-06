@@ -80,22 +80,31 @@ int main(int argc, char* argv[]) {
   transm_file << "./sender_log.out";
   transm_file_stats.open(transm_file.str().c_str(),std::ios_base::app);
   transm_file_stats << "[" << optDriver.getEpoch() << "]:: Beginning of )Experiment - Tranmsmissions log" << endl;
-
+	std::string rxMessage = "";
   // START THE APPLICATION
-	while (true) {
+	while (packet_counter < packet_in_a_burst) {
     // SEND a packet of the "burst" (in IM mode)
-    if ( (packet_counter % packet_in_a_burst) ) {
-			optDriver.updateTx(complete_message);
-	 		optDriver.modemTx();	 		
-	 	}
-	 	else {
-	 		transmit(acDriver,ID_RECEIVER, complete_message,NOACK);
-	 	}
-		packet_counter ++;
+		std::stringstream converter;
+		converter << packet_counter;
+		complete_message = converter.str();
+    optDriver.updateTx(complete_message);
+	 	optDriver.modemTx();
+	 	if (ac_modemStatus == MODEM_IDLE_RX && ac_modemStatus_old == MODEM_RX) {
+			rxMessage = acDriver->getRxPayload();
+			cout << "Ricevuto from acoustic " << ID_RECEIVER << " " << rxMessage << endl;
+			usleep(period);
+			optDriver.updateTx(rxMessage);
+	 		optDriver.modemTx();
+	 		packet_counter = atoi(rxMessage.c_str());
+		}
+		else {
+			packet_counter ++;
+		}
 		cout << "Inviato from " << ID << " pachet num " << packet_counter 
          << " payload "  << complete_message << endl;
 		usleep(period);
+		ac_modemStatus_old = acDriver->getStatus();
+		ac_modemStatus = acDriver->updateStatus();
 	}
 	return 0;
 }
-

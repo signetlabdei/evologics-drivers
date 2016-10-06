@@ -275,7 +275,7 @@ int MinterpreterOp::getDebug() {
 
 void MinterpreterOp::parse_recv(std::string rx_string) {
 
-  std::string _prefix, _f, _rec, _rx_power, _payload;
+  std::string _prefix, _f, _rec, _rx_power, _payload, _trash;
   unsigned short crc16_rx, crc16_calc;
   bool crc_flag = false;
   double rx_power = 0;
@@ -302,6 +302,12 @@ void MinterpreterOp::parse_recv(std::string rx_string) {
       f_id ++;
     }
     getline(iastr, _rec, ',');
+    if (_f.size() > 3 ) {
+      while (atoi(_f.substr(3).c_str()) !=  (_rec.size() -2)) {
+        getline(iastr, _trash, ',');
+        _rec.append(",");
+      }
+    }
     //IF NEW_FIRMWARE: when rx power will be implemented
     getline(iastr, _rx_power, ',');
     double new_rx_pwr =atof(_rx_power.c_str());
