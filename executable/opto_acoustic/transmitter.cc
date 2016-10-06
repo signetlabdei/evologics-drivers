@@ -35,52 +35,62 @@
  *
  */
 #include "uwenea_opt_driver.h"
+#include "utilities.h"
 /**
  * Main: the transmitter
 **/
 int main(int argc, char* argv[]) {
 	// CHECK parameters
   cout << "Ciao" << endl;
-	if (argc < 6) {
+	if (argc < 9) {
 		cerr << "Usage:" <<endl;
-   	cerr << "./mycc ID serial, baud period[ms] tot_pkts" << endl;
+   	cerr << "./mycc ID ID_RECEIVER serial baud ip port period[ms] packet_in_a_burst" << endl;
 		return -1;
 	}
   // INITIALIZATION
  	int ID = atoi(argv[1]);
-	std::string serial = argv[2];
-	int baud = atoi(argv[3]);
-	double period = atof(argv[4]) * pow10(3);
-	int tot_pkts = atoi(argv[5]);
-	if ( !tot_pkts ) {
-		cerr << "Error: tot_pkts must be > 0" <<endl;
+ 	int ID_RECEIVER = atoi(argv[2]);
+	std::string serial = argv[3];
+	int baud = atoi(argv[4]);
+	std::string ip = argv[5];
+	std::string port = argv[6];
+	double period = atof(argv[7]) * pow10(3);
+	int packet_in_a_burst = atoi(argv[8]);
+	if ( !packet_in_a_burst ) {
+		cerr << "Error: packet_in_a_burst must be > 0" <<endl;
 		return -1;
 	}
-	Enea_opt_driver pmDriver(serial, baud);
-	pmDriver.setID(ID);
-  pmDriver.setPeriod(0.01);
-	pmDriver.start();
+	Enea_opt_driver optDriver(serial, baud);
+	optDriver.setID(ID);
+  optDriver.setPeriod(0.01);
+	optDriver.start();
+
+	MdriverS2C_EvoLogics* acDriver = connectModem(ip, port, ID_RECEIVER);
+	int ac_modemStatus_old = acDriver->getStatus();
+	int ac_modemStatus = acDriver->updateStatus();
+
  	int backoff_period = 10 * pow10(6);
 	int packet_counter = 0;
 	std::string complete_message = "CIAO CIAO";
+
   
   // SET LOG FILES
 	std::stringstream transm_file;
-	std::stringstream delay_file;
 	std::ofstream transm_file_stats(0);
-	std::ofstream delay_file_stats(0);
   transm_file << "./sender_log.out";
-	delay_file << "./delay_log.out";
   transm_file_stats.open(transm_file.str().c_str(),std::ios_base::app);
-	delay_file_stats.open(delay_file.str().c_str(),std::ios_base::app);
-  transm_file_stats << "[" << pmDriver.getEpoch() << "]:: Beginning of )Experiment - Tranmsmissions log" << endl;
-	delay_file_stats << "[" << pmDriver.getEpoch() << "]:: Beginning of Experiment - Delay log" << endl;
+  transm_file_stats << "[" << optDriver.getEpoch() << "]:: Beginning of )Experiment - Tranmsmissions log" << endl;
 
   // START THE APPLICATION
-	while (packet_counter < tot_pkts) {
+	while (true) {
     // SEND a packet of the "burst" (in IM mode)
-		pmDriver.updateTx(complete_message);
- 		pmDriver.modemTx();
+    if ( (packet_counter % packet_in_a_burst) ) {
+			optDriver.updateTx(complete_message);
+	 		optDriver.modemTx();	 		
+	 	}
+	 	else {
+	 		transmit(acDriver,ID_RECEIVER, complete_message,NOACK);
+	 	}
 		packet_counter ++;
 		cout << "Inviato from " << ID << " pachet num " << packet_counter 
          << " payload "  << complete_message << endl;

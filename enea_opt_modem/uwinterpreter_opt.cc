@@ -155,7 +155,7 @@ std::string MinterpreterOp::build_send(int _length, std::string _payload)
   string strlog;
   sstr << "OPT_MODEM_MESSAGE_TO_SEND=" << hexdumplog(at_string) << endl;
   sstr >> strlog;
-  pmDriver->printOnLog(LOG_LEVEL_INFO,"OPT_MODEM_MESSAGE_",strlog);
+  pmDriver->printOnLog(OPT_LOG_LEVEL_INFO,"OPT_MODEM_MESSAGE_",strlog);
   // Return the created at_string
   return at_string;
 }
@@ -176,7 +176,7 @@ std::string MinterpreterOp::build_set_rate(int _rate)
   string strlog;
   sstr << "OPT_MODEM_MESSAGE_TO_SEND=" << hexdumplog(at_string) << endl;
   sstr >> strlog;
-  pmDriver->printOnLog(LOG_LEVEL_INFO,"OPT_MODEM_MESSAGE_",strlog);
+  pmDriver->printOnLog(OPT_LOG_LEVEL_INFO,"OPT_MODEM_MESSAGE_",strlog);
   // Return the created at_string
   return at_string;
 }
@@ -197,7 +197,7 @@ std::string MinterpreterOp::build_set_thres(int _thres)
   string strlog;
   sstr << "OPT_MODEM_MESSAGE_TO_SEND=" << hexdumplog(at_string) << endl;
   sstr >> strlog;
-  pmDriver->printOnLog(LOG_LEVEL_INFO,"OPT_MODEM_MESSAGE_",strlog);
+  pmDriver->printOnLog(OPT_LOG_LEVEL_INFO,"OPT_MODEM_MESSAGE_",strlog);
   // Return the created at_string
   return at_string;
 }
@@ -218,7 +218,7 @@ std::string MinterpreterOp::build_set_LED(int _flag)
   string strlog;
   sstr << "OPT_MODEM_MESSAGE_TO_SEND=" << hexdumplog(at_string) << endl;
   sstr >> strlog;
-  pmDriver->printOnLog(LOG_LEVEL_INFO,"OPT_MODEM_MESSAGE_",strlog);
+  pmDriver->printOnLog(OPT_LOG_LEVEL_INFO,"OPT_MODEM_MESSAGE_",strlog);
   // Return the created at_string
   return at_string;
 }
@@ -250,7 +250,7 @@ std::string MinterpreterOp::build_set_analog(int _an_mode)
   string strlog;
   sstr << "OPT_MODEM_MESSAGE_TO_SEND=" << hexdumplog(at_string) << endl;
   sstr >> strlog;
-  pmDriver->printOnLog(LOG_LEVEL_INFO,"OPT_MODEM_MESSAGE_",strlog);
+  pmDriver->printOnLog(OPT_LOG_LEVEL_INFO,"OPT_MODEM_MESSAGE_",strlog);
   // Return the created at_string
   return at_string;
 }
@@ -284,7 +284,7 @@ void MinterpreterOp::parse_recv(std::string rx_string) {
   string strlog;
   sstr << "PARSE_RECV::OPT_MODEM_MESSAGE_TO_PARSE=" << hexdumplog(rx_string) << endl;
   sstr >> strlog;
-  pmDriver->printOnLog(LOG_LEVEL_INFO,"OPT_MODEM_MESSAGE_",strlog);
+  pmDriver->printOnLog(OPT_LOG_LEVEL_INFO,"OPT_MODEM_MESSAGE_",strlog);
 
   _payload = "";
  

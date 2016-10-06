@@ -53,26 +53,26 @@
 #include <cmath>
 //#include "enea_consts.h"
 
-#define MAX_LOG_LEVEL 2
+#define MAX_OPT_LOG_LEVEL 2
 
-enum MODEM_STATES {
-  MODEM_IDLE = 0,
-  MODEM_TX,
-  MODEM_RX,
-  MODEM_CFG_RX,
-  MODEM_CFG,
-  MODEM_QUIT
+enum OPT_MODEM_STATES {
+  OPT_MODEM_IDLE = 0,
+  OPT_MODEM_TX,
+  OPT_MODEM_RX,
+  OPT_MODEM_CFG_RX,
+  OPT_MODEM_CFG,
+  OPT_MODEM_QUIT
 };
 
-enum LOG_LEVEL {
-  LOG_LEVEL_ERROR = 0,
-  LOG_LEVEL_INFO,
-  LOG_LEVEL_DEBUG
+enum OPT_LOG_LEVEL {
+  OPT_LOG_LEVEL_ERROR = 0,
+  OPT_LOG_LEVEL_INFO,
+  OPT_LOG_LEVEL_DEBUG
 };
 
-typedef enum LOG_LEVEL log_level_t;
+typedef enum OPT_LOG_LEVEL opt_log_level_t;
 
-typedef enum MODEM_STATES modem_state_t;
+typedef enum OPT_MODEM_STATES opt_modem_state_t;
 
 using namespace std;
 
@@ -160,7 +160,7 @@ public:
 	 * 
 	 *  @return UWMdriver::status, the updated modem's status.
 	 */
-	virtual modem_state_t updateStatus();
+	virtual opt_modem_state_t updateStatus();
 
 	/** 
 	 *  Method to reset the modem status. NOTE: this function should be used by the UWMPhy_modem object linked to this
@@ -194,7 +194,7 @@ public:
 	 * 
 	 * @return UWMdriver::status. 
 	 */
-	modem_state_t getStatus()
+	opt_modem_state_t getStatus()
 	{
 	  return status;
 	}
@@ -226,9 +226,9 @@ public:
 	 * 
 	 * @return UWMPhy_modem::log_
 	 */
-	log_level_t getLogLevel();
+	opt_log_level_t getLogLevel();
 
-	void setLogLevel(log_level_t);
+	void setLogLevel(opt_log_level_t);
 	
 	/**
 	 * Method to return the name of the disk-fiel used to print the log messages.
@@ -241,7 +241,7 @@ public:
 	 
 /*  virtual void emptyModemQueue() = 0;*/
 	 
-	void printOnLog(log_level_t log_level,string module, string message);
+	void printOnLog(opt_log_level_t log_level,string module, string message);
 
 	/**
    * Return the MAC id of the node
@@ -276,7 +276,7 @@ protected:
 	Mserial pmConnector; /**< pointer to the object that handles the physical transmission and
 	                                      reception of acoustic packets */
 
-	modem_state_t status; /**< Status of the driver's general state machine. Seven possible statuses = \e _IDLE, \e _TX, \e _RX , \e _IDLE_RX,\e _CFG, \e _TX_PAUSED and \e _TX_RX.*/
+	opt_modem_state_t status; /**< Status of the driver's general state machine. Seven possible statuses = \e _IDLE, \e _TX, \e _RX , \e _IDLE_RX,\e _CFG, \e _TX_PAUSED and \e _TX_RX.*/
 
 	// TX VARIABLES (variables for the next packet to be transmitted)
 	std::string payload_tx; /**< String where to save the payload of the next packet to send via modem. NOTE: an object of the class UWMcodec must write here after the host-to-modem mapping. */
@@ -288,7 +288,7 @@ protected:
 	int id_;
 	double period_;
 	string log_file_;
-	log_level_t log_level_;
+	opt_log_level_t log_level_;
 	/** 
 	 * Link connector. This method must be used by any derived class D of UWDriver to link the members pmInterpreter and pmConnector of UWMdriver to the corresponding derived objects contained in D.
 	 * @see: e.g. MdriverS2C_EvoLogics

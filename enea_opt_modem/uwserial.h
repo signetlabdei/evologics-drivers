@@ -58,9 +58,9 @@
 
 // MACRO definition(s). 
 #define _POSIX_SOURCE 1 /**< Flag to indicate a POSIX compliant source. */
-#define _MODEM_OK 1 /**< Variable to test the right opening of the modem's connection. */
-#define _MAX_MSG_LENGTH (0x6000) /**< Variable defining the maximum length of the messages exchanged between host and modem */
-#define _MAX_QUEUE_LENGTH 200 /**< Maximum length of queue containing the messages from modem */
+#define _OPT_MODEM_OK 1 /**< Variable to test the right opening of the modem's connection. */
+#define _OPT_MAX_MSG_LENGTH (0x6000) /**< Variable defining the maximum length of the messages exchanged between host and modem */
+#define _OPT_MAX_QUEUE_LENGTH 200 /**< Maximum length of queue containing the messages from modem */
 
 using namespace std;
 
@@ -84,7 +84,7 @@ static BaudMap createBaudMap() {
 
 static const BaudMap BAUD_LIST = createBaudMap();
 
-struct msgModem {
+struct msgOptModem {
   string msg_rx; /**< Message from the modem.*/
   int msg_length; /**< Length of the message (bytes).*/
 };
@@ -103,7 +103,7 @@ class Mserial
 	int rc; /**< Indicator of the thread creation. */
 	struct termios oldtio,newtio; /**< Containers of the serial setups. */
 	pthread_t thread_id; /**< Id of a parallel thread. */
-	char msg_tx[_MAX_MSG_LENGTH]; /**< Message to be transmitted host to modem. */
+	char msg_tx[_OPT_MAX_MSG_LENGTH]; /**< Message to be transmitted host to modem. */
 	speed_t baudrate; /**< Variable to set the desired transmission baudrate of the serial connection. */
 		
 	/**
@@ -177,7 +177,7 @@ class Mserial
 	 */
 	int inline getDebug() { return debug_; }
 	
-	queue<msgModem> queueMsg; /**< Queue used to buffer incoming strings from the modem.*/
+	queue<msgOptModem> queueMsg; /**< Queue used to buffer incoming strings from the modem.*/
 
 protected:
 	int debug_; /**< Flag to enable debug mode (i.e., printing of debug messages) if set to 1 */

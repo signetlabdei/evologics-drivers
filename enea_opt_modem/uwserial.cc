@@ -98,7 +98,7 @@ int Mserial::openConnection(){
 		exit(-1);
 	}	
 	
-	return _MODEM_OK;
+	return _OPT_MODEM_OK;
 }
 		
 void Mserial::closeConnection(){
@@ -116,7 +116,7 @@ int Mserial::writeToModem(std::string str){
   }
 
   // Copy the input string in Mserial::msg_tx
-  bzero(msg_tx,_MAX_MSG_LENGTH);
+  bzero(msg_tx,_OPT_MAX_MSG_LENGTH);
 	int msg_ssz = str.size();	
   memcpy(msg_tx, str.c_str(), msg_ssz);
 	// Length of the message to be transmitted
@@ -187,7 +187,7 @@ void Mserial::new_port_settings(struct termios *tio_p){
 std::string Mserial::readFromModem() {
   
   std::string return_str;
-  msgModem tmp_;
+  msgOptModem tmp_;
   if (!queueMsg.empty()){
     tmp_ = queueMsg.front();
     return_str = tmp_.msg_rx;
@@ -239,8 +239,8 @@ double Mserial::getPeriod() {
 void *read_process_mserial(void *pMserial_me_)
 {    
   // Array to store the received message
-	char msg_rx[_MAX_MSG_LENGTH + 1];
-	msgModem tmp_;
+	char msg_rx[_OPT_MAX_MSG_LENGTH + 1];
+	msgOptModem tmp_;
 	// Output stream to write to pMserial_me->getReadingBuff()
 	std::ofstream out;
 	
@@ -255,7 +255,7 @@ void *read_process_mserial(void *pMserial_me_)
 	while (1) 
 	{
 		// Read from the serial
-		tmp_.msg_length = read(pMserial_me->getSerial(),msg_rx,_MAX_MSG_LENGTH);
+		tmp_.msg_length = read(pMserial_me->getSerial(),msg_rx,_OPT_MAX_MSG_LENGTH);
 		// Set end of string
 		if( tmp_.msg_length < 0 ) {
         perror( "SERIAL::READ::ERROR_READ_FROM_SERIAL" );
@@ -265,7 +265,7 @@ void *read_process_mserial(void *pMserial_me_)
 		for (int i = 0; i < tmp_.msg_length; i++)
 			cout << (unsigned short) (msg_rx[i]) << endl;*/
 
-		if (pMserial_me->queueMsg.size() > _MAX_QUEUE_LENGTH) {
+		if (pMserial_me->queueMsg.size() > _OPT_MAX_QUEUE_LENGTH) {
       cout << "MSERIAL::READ::ERROR::BUFFER_FULL ---> drop the oldest packet" << endl;
 			pMserial_me->queueMsg.pop();
 		}

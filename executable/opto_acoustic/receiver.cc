@@ -35,33 +35,47 @@
  */
 
 #include "uwenea_opt_driver.h"
+#include "utilities.h"
 
 int main(int argc, char* argv[]) {
 	cout << "Ciao Stazione" << endl;
-	if (argc < 4) {
-		cerr << "Insert ID_RECEIVER, serial and baud!" << endl;
+	if (argc < 6) {
+		cerr << "Insert ID_RECEIVER serial baud ip port" << endl;
 		return -1;
 	}
 	//set connection to the acoustic modem
 	int ID_RECEIVER = atoi(argv[1]);
 	std::string serial = argv[2];
 	int baud = atoi(argv[3]);
-	Enea_opt_driver pmDriver(serial, baud);
+	std::string ip = argv[4];
+	std::string port = argv[5];
+	Enea_opt_driver optDriver(serial, baud);
 	cout << "ID " << ID_RECEIVER << endl;
-	pmDriver.setID(ID_RECEIVER);
-  pmDriver.setPeriod(0.01);
-	pmDriver.start();
-	int modemStatus_old = pmDriver.getStatus();
-	int modemStatus = pmDriver.updateStatus();
+	optDriver.setID(ID_RECEIVER);
+  optDriver.setPeriod(0.01);
+	optDriver.start();
+	int opt_modemStatus_old = optDriver.getStatus();
+	int opt_modemStatus = optDriver.updateStatus();
 
+	MdriverS2C_EvoLogics* acDriver = connectModem(ip, port, ID_RECEIVER);
+	int ac_modemStatus_old = acDriver->getStatus();
+	int ac_modemStatus = acDriver->updateStatus();
+	std::string rxMessage = "";
 	while (true) {
-		if (modemStatus == OPT_MODEM_IDLE && modemStatus_old == OPT_MODEM_RX) {
-			std::string rxMessage = pmDriver.getRxPayload();
-			cout << "Ricevuto " << ID_RECEIVER << " " << rxMessage << endl;
+		if (opt_modemStatus == OPT_MODEM_IDLE && opt_modemStatus_old == OPT_MODEM_RX) {
+			rxMessage = optDriver.getRxPayload();
+			cout << "Ricevuto from optical " << ID_RECEIVER << " " << rxMessage << endl;
+		}
+		if (ac_modemStatus == MODEM_IDLE_RX && ac_modemStatus_old == MODEM_RX) {
+			rxMessage = acDriver->getRxPayload();
+			cout << "Ricevuto from acoustic " << ID_RECEIVER << " " << rxMessage << endl;
 		}
 		usleep(200);			
-		modemStatus_old = pmDriver.getStatus();
-		modemStatus = pmDriver.updateStatus();
+		opt_modemStatus_old = optDriver.getStatus();
+		opt_modemStatus = optDriver.updateStatus();
+
+		ac_modemStatus_old = acDriver->getStatus();
+		ac_modemStatus = acDriver->updateStatus();
 	}
 	return 0;
 }

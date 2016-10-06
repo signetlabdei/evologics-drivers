@@ -39,12 +39,12 @@ Enea_opt_driver::Enea_opt_driver(std::string pToDevice_, int serial_baudrate_):
 debug_(0),
 pmConnector(this, pToDevice_, serial_baudrate_ ),
 pmInterpreter(this),
-period_(0.1),
+period_(0.01),
 id_(0),
-log_level_(LOG_LEVEL_INFO),
+log_level_(OPT_LOG_LEVEL_INFO),
 log_file_("/dev/null")
 {  
-  status = MODEM_IDLE;
+  status = OPT_MODEM_IDLE;
   payload_tx = "";
   payload_rx = "";
   
@@ -67,18 +67,18 @@ void Enea_opt_driver::setLogFile(std::string f)
   log_file_ = f; 
 }
 
-log_level_t Enea_opt_driver::getLogLevel()
+opt_log_level_t Enea_opt_driver::getLogLevel()
 { 
   return log_level_; 
 }
 
-void Enea_opt_driver::setLogLevel(log_level_t l)
+void Enea_opt_driver::setLogLevel(opt_log_level_t l)
 { 
   log_level_ = l; 
 }
 
 void Enea_opt_driver::resetModemStatus() {
-  status = MODEM_IDLE;
+  status = OPT_MODEM_IDLE;
 
 }
 		
@@ -90,8 +90,8 @@ void Enea_opt_driver::updateRx(std::string prx) {
   payload_rx = prx;
 }
 
-void Enea_opt_driver::printOnLog(log_level_t log_level,string module, string message) {
-  log_level_t actual_log_level = getLogLevel();
+void Enea_opt_driver::printOnLog(opt_log_level_t log_level,string module, string message) {
+  opt_log_level_t actual_log_level = getLogLevel();
   if (actual_log_level >= log_level)
   {
     outLog.open((getLogFile()).c_str(), ios::app);
@@ -111,40 +111,40 @@ void Enea_opt_driver::setID(int id) {
 }
 
 void Enea_opt_driver::modemTx() {
-  assert (status == MODEM_IDLE);
-  status = MODEM_TX;
+  assert (status == OPT_MODEM_IDLE);
+  status = OPT_MODEM_TX;
   std::string tx_msg = pmInterpreter.build_send(payload_tx.length(), payload_tx);
   pmConnector.writeToModem (tx_msg);
-  //printOnLog(LOG_LEVEL_INFO,"OPT_DRIVER_",tx_msg);
+  //printOnLog(OPT_LOG_LEVEL_INFO,"OPT_DRIVER_",tx_msg);
   /*checkTx(payload_tx.length());*/
 
-  /*status = MODEM_IDLE;*/
+  /*status = OPT_MODEM_IDLE;*/
   updateStatus();
 }
 
-modem_state_t Enea_opt_driver::updateStatus() {
+opt_modem_state_t Enea_opt_driver::updateStatus() {
  /* if(debug_)
     cout << "Enea_opt_driver::updateStatus() " << status;*/
   switch(status) {
-    case MODEM_TX:
-      status = MODEM_IDLE;
+    case OPT_MODEM_TX:
+      status = OPT_MODEM_IDLE;
       if(debug_)
-        cout << ", MODEM_TX --> MODEM_IDLE" << endl;
+        cout << ", OPT_MODEM_TX --> OPT_MODEM_IDLE" << endl;
       break;
-    case MODEM_CFG:
-      status = MODEM_IDLE;
+    case OPT_MODEM_CFG:
+      status = OPT_MODEM_IDLE;
       if(debug_)
-        cout << ", MODEM_CFG --> MODEM_IDLE" << endl;
+        cout << ", OPT_MODEM_CFG --> OPT_MODEM_IDLE" << endl;
       break;
-    case MODEM_RX:
-      status = MODEM_IDLE;
+    case OPT_MODEM_RX:
+      status = OPT_MODEM_IDLE;
       if(debug_)
-        cout << ", MODEM_RX --> MODEM_IDLE" << endl;
+        cout << ", OPT_MODEM_RX --> OPT_MODEM_IDLE" << endl;
       break;
-    case MODEM_CFG_RX:
-      status = MODEM_CFG;
+    case OPT_MODEM_CFG_RX:
+      status = OPT_MODEM_CFG;
       if(debug_)
-        cout << ", MODEM_CFG_RX --> MODEM_CFG" << endl;
+        cout << ", OPT_MODEM_CFG_RX --> OPT_MODEM_CFG" << endl;
       break;
     default:
       while(!pmConnector.queueMsg.empty()) {
@@ -164,48 +164,48 @@ void Enea_opt_driver::stop() {
 }
 
 void Enea_opt_driver::start() {
-  printOnLog(LOG_LEVEL_DEBUG,"ENEA_OPT_MODEM","MODEM_START");
+  printOnLog(OPT_LOG_LEVEL_DEBUG,"ENEA_OPT_MODEM","MODEM_START");
   pmConnector.openConnection();
-  status = MODEM_IDLE;
+  status = OPT_MODEM_IDLE;
 }
 
 void Enea_opt_driver::modemSetBitrate(int brate) {
-  assert (status == MODEM_IDLE || status == MODEM_RX);
-  status = status == MODEM_IDLE ? MODEM_CFG : MODEM_CFG_RX;
+  assert (status == OPT_MODEM_IDLE || status == OPT_MODEM_RX);
+  status = status == OPT_MODEM_IDLE ? OPT_MODEM_CFG : OPT_MODEM_CFG_RX;
   std::string tx_msg = pmInterpreter.build_set_rate(brate);
   pmConnector.writeToModem (tx_msg);
-  //status = (status == MODEM_CFG_RX) ? MODEM_RX : MODEM_IDLE;
+  //status = (status == OPT_MODEM_CFG_RX) ? OPT_MODEM_RX : OPT_MODEM_IDLE;
   updateStatus();
 }
 
 void Enea_opt_driver::modemSetThreshold(int threshold){
-  assert (status == MODEM_IDLE || status == MODEM_RX);
-  status = status == MODEM_IDLE ? MODEM_CFG : MODEM_CFG_RX ;
+  assert (status == OPT_MODEM_IDLE || status == OPT_MODEM_RX);
+  status = status == OPT_MODEM_IDLE ? OPT_MODEM_CFG : OPT_MODEM_CFG_RX ;
   std::string tx_msg = pmInterpreter.build_set_thres(threshold);
   pmConnector.writeToModem (tx_msg);
-  //status = (status == MODEM_CFG_RX) ? MODEM_RX : MODEM_IDLE;
+  //status = (status == OPT_MODEM_CFG_RX) ? OPT_MODEM_RX : OPT_MODEM_IDLE;
   updateStatus();
 }
 
 void Enea_opt_driver::modemSetLED(int led_flag){
-  assert (status == MODEM_IDLE || status == MODEM_RX);
-  status = (status == MODEM_IDLE ? MODEM_CFG : MODEM_CFG_RX);
+  assert (status == OPT_MODEM_IDLE || status == OPT_MODEM_RX);
+  status = (status == OPT_MODEM_IDLE ? OPT_MODEM_CFG : OPT_MODEM_CFG_RX);
   std::string tx_msg = pmInterpreter.build_set_LED(led_flag);
   pmConnector.writeToModem (tx_msg);  
-  //status = (status == MODEM_CFG_RX) ? MODEM_RX : MODEM_IDLE;
+  //status = (status == OPT_MODEM_CFG_RX) ? OPT_MODEM_RX : OPT_MODEM_IDLE;
   updateStatus();
 }
 
 void Enea_opt_driver::modemSetAnalog(int an_mode){
-  status = (status == MODEM_IDLE ? MODEM_CFG : MODEM_CFG_RX);
+  status = (status == OPT_MODEM_IDLE ? OPT_MODEM_CFG : OPT_MODEM_CFG_RX);
   std::string tx_msg = pmInterpreter.build_set_analog(an_mode);
   pmConnector.writeToModem (tx_msg);  
-  //status = (status == MODEM_CFG_RX) ? MODEM_RX : MODEM_IDLE;
+  //status = (status == OPT_MODEM_CFG_RX) ? OPT_MODEM_RX : OPT_MODEM_IDLE;
   updateStatus();
 }
 
 /*void Enea_opt_driver::checkConf() {
-  if (status != MODEM_CFG || status != MODEM_CFG_RX)
+  if (status != OPT_MODEM_CFG || status != OPT_MODEM_CFG_RX)
     return ;
   int count = 0;
   std::string temp = "";
@@ -220,7 +220,7 @@ void Enea_opt_driver::modemSetAnalog(int an_mode){
 }
 
 void Enea_opt_driver::checkTx() {
-  if (status != MODEM_TX)
+  if (status != OPT_MODEM_TX)
     return ;
   std::string temp = "";
   int count = 0;
@@ -252,11 +252,11 @@ void Enea_opt_driver::checkRx(std::string rx_msg) {
     pmInterpreter.parse_recv(rx_msg.substr(rx_msg.find("recv")));
     // log recv
     switch (status) {
-      case MODEM_CFG:
-        status = MODEM_CFG_RX;
+      case OPT_MODEM_CFG:
+        status = OPT_MODEM_CFG_RX;
         break;
-      case MODEM_IDLE:
-        status = MODEM_RX;
+      case OPT_MODEM_IDLE:
+        status = OPT_MODEM_RX;
         break;
       default:
         return;
