@@ -55,6 +55,7 @@ AC_CONFIG_FILES([
     executable/gpIO/Makefile
     executable/m2mo/Makefile
     executable/multi-modal/Makefile
+    executable/opto_acoustic/Makefile
     executable/source_localization/Makefile
     ])
 

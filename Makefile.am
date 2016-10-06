@@ -37,10 +37,11 @@ SUBDIRS = uwmphy_modem \
 	  executable/base_sample \
 	  executable/burst \
 	  executable/burst_lowlevel \
-      executable/burst_enea \
+    executable/burst_enea \
 	  executable/gpIO \
 	  executable/m2mo \
 	  executable/multi-modal \
-          executable/source_localization
+    executable/opto_acoustic \
+    executable/source_localization
 
 ACLOCAL_AMFLAGS = -I m4
